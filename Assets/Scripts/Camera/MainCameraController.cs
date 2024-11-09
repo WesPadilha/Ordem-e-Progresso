@@ -4,6 +4,7 @@ using UnityEngine;
 
 public class MainCameraController : MonoBehaviour
 {
+    public Transform player; // Referência ao jogador
     public float cameraMoveSpeed = 5f;
     public float rotationSpeed = 100f;
     public float edgeBoundary = 10f; // Distância do canto para iniciar o movimento
@@ -11,13 +12,14 @@ public class MainCameraController : MonoBehaviour
     public float zoomSpeed = 2f; // Velocidade do zoom
     public float minY = 7f; // Altura mínima de zoom
     private float maxY; // Armazena a altura inicial para limitar o zoom para trás
+    private float currentZoomOffsetY; // Offset atual de zoom
 
     private void Start()
     {
-        // Configura a posição inicial da câmera em relação ao alvo
-        transform.position = cameraOffset;
+        maxY = cameraOffset.y; // Define o limite superior com base na posição inicial
+        currentZoomOffsetY = cameraOffset.y; // Inicializa o offset de zoom
+        transform.position = player.position + cameraOffset;
         transform.rotation = Quaternion.Euler(60, 0, 0); // Ângulo isométrico
-        maxY = transform.position.y; // Define a posição Y original como limite máximo
     }
 
     private void Update()
@@ -44,12 +46,16 @@ public class MainCameraController : MonoBehaviour
             transform.RotateAround(transform.position, Vector3.up, horizontalRotation);
         }
 
-        // Zoom ao scrollar para frente e para trás
+        // Zoom com ajuste de altura
         float scrollInput = Input.mouseScrollDelta.y;
         if (scrollInput != 0f)
         {
-            float newY = Mathf.Clamp(transform.position.y - scrollInput * zoomSpeed, minY, maxY);
-            transform.position = new Vector3(transform.position.x, newY, transform.position.z);
+            currentZoomOffsetY = Mathf.Clamp(currentZoomOffsetY - scrollInput * zoomSpeed, minY, maxY);
         }
+
+        // Ajusta a posição Y da câmera para acompanhar o jogador no eixo Y, aplicando o zoom
+        Vector3 newPosition = transform.position;
+        newPosition.y = Mathf.Max(player.position.y + currentZoomOffsetY, minY);
+        transform.position = newPosition;
     }
 }

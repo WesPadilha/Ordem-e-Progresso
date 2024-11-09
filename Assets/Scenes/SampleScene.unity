@@ -332,6 +332,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 288aaf1096c229f44932a7c1db222c9e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  player: {fileID: 156688920}
   cameraMoveSpeed: 10
   rotationSpeed: 200
   edgeBoundary: 10
@@ -966,7 +967,7 @@ GameObject:
   - component: {fileID: 2094664844}
   - component: {fileID: 2094664843}
   m_Layer: 0
-  m_Name: Directional Light (1)
+  m_Name: Directional Light
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
