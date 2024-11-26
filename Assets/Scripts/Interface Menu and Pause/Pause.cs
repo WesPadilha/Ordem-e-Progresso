@@ -1,7 +1,6 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using DialogueEditor;
 
 public class Pause : MonoBehaviour
 {
@@ -10,18 +9,32 @@ public class Pause : MonoBehaviour
     [SerializeField] private GameObject Option;
     [SerializeField] private GameObject Resolution;
     [SerializeField] private GameObject Sound;
+    [SerializeField] private GameObject ExitGame;
     [SerializeField] private GameObject[] MainButton;
+
+    public DialogNPC dialogNPC; // Referência para o script de diálogo (assegure-se de arrastar no inspector)
 
     void Update()
     {
         if (Input.GetKeyDown(KeyCode.Escape))
         {
-            if (GameIsPaused)
+            if (dialogNPC != null && ConversationManager.Instance != null && ConversationManager.Instance.IsConversationActive)
             {
-                Resume();
-            } else
+                // Se uma conversa estiver ativa, apenas encerre a conversa
+                ConversationManager.Instance.EndConversation();
+                dialogNPC.EndConversation(); // Certifique-se de que o método EndConversation do DialogNPC seja chamado
+            }
+            else
             {
-                PauseGame();
+                // Se não houver conversa ativa, alterna entre pausar e retomar o jogo
+                if (GameIsPaused)
+                {
+                    Resume();
+                }
+                else
+                {
+                    PauseGame();
+                }
             }
         }
     }
@@ -90,6 +103,19 @@ public class Pause : MonoBehaviour
         Time.timeScale = 1f;
         SceneManager.LoadScene("MainMenu");
     }
+
+    public void OpenExitGame()
+    {
+        ExitGame.SetActive(true);
+        DesableMainButton();
+    }
+
+    public void CloseExitGame()
+    {
+        ExitGame.SetActive(false);
+        StartMainButton();
+    }
+
 
     public void QuitGame()
     {

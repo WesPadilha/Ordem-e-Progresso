@@ -9,7 +9,9 @@ public class MainController : MonoBehaviour
     private RaycastHit hit;
     private NavMeshAgent agent;
     private string groundTag = "Ground";
-    
+
+    public ScreenController screenController; 
+
     void Start()
     {
         agent = GetComponent<NavMeshAgent>();
@@ -17,13 +19,16 @@ public class MainController : MonoBehaviour
 
     void Update()
     {
-        if(Input.GetMouseButtonDown(1))
+        if (screenController != null && screenController.IsAnyUIActive())
+            return;
+
+        if (Input.GetMouseButtonDown(1))
         {
             Ray ray = camera.ScreenPointToRay(Input.mousePosition);
 
-            if(Physics.Raycast(ray, out hit, Mathf.Infinity))
+            if (Physics.Raycast(ray, out hit, Mathf.Infinity))
             {
-                if(hit.collider.CompareTag(groundTag))
+                if (hit.collider.CompareTag(groundTag))
                 {
                     agent.SetDestination(hit.point);
                 }

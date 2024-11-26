@@ -14,6 +14,8 @@ public class MainCameraController : MonoBehaviour
     private float maxY; // Armazena a altura inicial para limitar o zoom para trás
     private float currentZoomOffsetY; // Offset atual de zoom
 
+    public ScreenController screenController; // Referência ao ScreenController
+
     private void Start()
     {
         maxY = cameraOffset.y; // Define o limite superior com base na posição inicial
@@ -24,6 +26,10 @@ public class MainCameraController : MonoBehaviour
 
     private void Update()
     {
+        // Bloqueia movimentação da câmera se alguma UI estiver ativa
+        if (screenController != null && screenController.IsAnyUIActive())
+            return;
+
         // Movimento da câmera ao atingir as bordas da tela
         Vector3 direction = Vector3.zero;
 
