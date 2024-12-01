@@ -1,7 +1,6 @@
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using DialogueEditor;
-
 public class Pause : MonoBehaviour
 {
     public static bool GameIsPaused = false;
@@ -11,6 +10,7 @@ public class Pause : MonoBehaviour
     [SerializeField] private GameObject Sound;
     [SerializeField] private GameObject ExitGame;
     [SerializeField] private GameObject[] MainButton;
+    [SerializeField] private ScreenController screenController; // Arraste o ScreenController no Inspector
 
     public DialogNPC dialogNPC; // Referência para o script de diálogo (assegure-se de arrastar no inspector)
 
@@ -18,15 +18,17 @@ public class Pause : MonoBehaviour
     {
         if (Input.GetKeyDown(KeyCode.Escape))
         {
-            if (dialogNPC != null && ConversationManager.Instance != null && ConversationManager.Instance.IsConversationActive)
+            // Fecha qualquer interface aberta
+            CloseActiveUI();
+
+            if (AnyOptionActive())
             {
-                // Se uma conversa estiver ativa, apenas encerre a conversa
-                ConversationManager.Instance.EndConversation();
-                dialogNPC.EndConversation(); // Certifique-se de que o método EndConversation do DialogNPC seja chamado
+                // Fecha qualquer menu aberto (Opções, Resolução, Som, Sair)
+                CloseAllOptions();
             }
             else
             {
-                // Se não houver conversa ativa, alterna entre pausar e retomar o jogo
+                // Alterna entre pausar e retomar o jogo
                 if (GameIsPaused)
                 {
                     Resume();
@@ -98,7 +100,6 @@ public class Pause : MonoBehaviour
     }
 
     public void LoadMenu()
-
     {
         Time.timeScale = 1f;
         SceneManager.LoadScene("MainMenu");
@@ -116,7 +117,6 @@ public class Pause : MonoBehaviour
         StartMainButton();
     }
 
-
     public void QuitGame()
     {
         Application.Quit();
@@ -129,6 +129,7 @@ public class Pause : MonoBehaviour
             button.SetActive(false);
         }
     }
+
     private void StartMainButton()
     {
         foreach (GameObject button in MainButton)
@@ -136,5 +137,38 @@ public class Pause : MonoBehaviour
             button.SetActive(true);
         }
     }
-}
 
+    private void CloseActiveUI()
+    {
+        if (screenController.Inventory.activeSelf)
+        {
+            screenController.Inventory.SetActive(false);
+        }
+        if (screenController.Attributes.activeSelf)
+        {
+            screenController.Attributes.SetActive(false);
+        }
+        if (screenController.Daily.activeSelf)
+        {
+            screenController.Daily.SetActive(false);
+        }
+        if (screenController.Map.activeSelf)
+        {
+            screenController.Map.SetActive(false);
+        }
+    }
+
+    private bool AnyOptionActive()
+    {
+        return Option.activeSelf || Resolution.activeSelf || Sound.activeSelf || ExitGame.activeSelf;
+    }
+
+    private void CloseAllOptions()
+    {
+        Option.SetActive(false);
+        Resolution.SetActive(false);
+        Sound.SetActive(false);
+        ExitGame.SetActive(false);
+        StartMainButton(); // Reativa os botões principais
+    }
+}
