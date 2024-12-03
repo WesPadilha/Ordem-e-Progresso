@@ -1,4 +1,4 @@
-using System.Collections; // Adicione esta linha
+using System.Collections;
 using UnityEngine;
 using DialogueEditor;
 
@@ -7,15 +7,15 @@ public class DialogNPC : MonoBehaviour
     public NPCConversation myConversation;
     public ScreenController screenController; // Referência ao ScreenController
     public Transform player; // Referência ao jogador
-    public Transform NPC;
-    public Camera camera;
+    public Transform NPC; // Referência ao NPC
+    public Camera camera; // Referência à câmera principal
     public float interactionDistance = 3f; // Distância mínima para iniciar a conversa
-    public float distanceBehindNPC = 5f; // Distância desejada atrás do NPC
-    public float rotationSpeed = 5f; // Velocidade de rotação da câmera
+    public float fixedDistance = 12f; // Distância fixa da câmera ao NPC
+    public float movementSpeed = 5f; // Velocidade de movimento da câmera
 
-    private bool isConversationActive = false; // Definindo a variável isConversationActive
-    private Vector3 originalCameraPosition; // Para armazenar a posição original da câmera
-    private Quaternion originalCameraRotation; // Para armazenar a rotação original da câmera
+    private bool isConversationActive = false; // Indica se a conversa está ativa
+    private Vector3 originalCameraPosition; // Posição original da câmera
+    private Quaternion originalCameraRotation; // Rotação original da câmera
 
     private void Start()
     {
@@ -26,7 +26,7 @@ public class DialogNPC : MonoBehaviour
 
     private void OnMouseOver()
     {
-        // Verifica se o jogo está pausado ou se uma UI está ativa
+        // Verifica se o jogo está pausado ou se a UI está ativa
         if (Pause.GameIsPaused || Vector3.Distance(player.position, transform.position) > interactionDistance || screenController.IsAnyUIActive())
             return;
 
@@ -39,55 +39,62 @@ public class DialogNPC : MonoBehaviour
             // Marca a conversa como ativa
             isConversationActive = true;
 
-            // Salva a posição e rotação atuais da câmera para retornar após o diálogo
-            originalCameraPosition = camera.transform.position;
-            originalCameraRotation = camera.transform.rotation;
+            // Move a câmera para a posição correta
+            StartCoroutine(MoveCameraToFixedPosition());
 
-            // Move a câmera para 5 metros atrás do NPC, mantendo a altura original
-            Vector3 directionBehind = (camera.transform.position - NPC.position).normalized;
-            camera.transform.position = NPC.position + directionBehind * distanceBehindNPC;
-
-            // Mantém a altura original da câmera
-            camera.transform.position = new Vector3(camera.transform.position.x, originalCameraPosition.y, camera.transform.position.z);
-
-            // Rotaciona a câmera para focar no NPC, mas sem alinhar totalmente
-            StartCoroutine(RotateCameraToNPC());
-
-            // Escuta quando a conversa termina
+            // Escuta o evento de término da conversa
             ConversationManager.OnConversationEnded += EndConversation;
         }
     }
 
-    private IEnumerator RotateCameraToNPC()
+    private IEnumerator MoveCameraToFixedPosition()
     {
-        // Calcula a rotação do NPC, mas mantendo um ângulo de visão "natural" para a câmera
-        Vector3 directionToNPC = NPC.position - camera.transform.position;
-        float targetAngleY = Mathf.Atan2(directionToNPC.x, directionToNPC.z) * Mathf.Rad2Deg;
+        // A rotação da câmera é preservada (não mexe em Y ou qualquer outra rotação)
+        float currentAngleY = camera.transform.rotation.eulerAngles.y;
 
-        Quaternion targetRotation = Quaternion.Euler(originalCameraRotation.eulerAngles.x, targetAngleY, originalCameraRotation.eulerAngles.z);
+        // Calcula a posição da câmera com base na rotação Y e a distância fixa
+        Vector3 direction = new Vector3(Mathf.Sin(currentAngleY * Mathf.Deg2Rad), 0, Mathf.Cos(currentAngleY * Mathf.Deg2Rad));
+        Vector3 targetPosition = NPC.position - direction * fixedDistance;
+        targetPosition.y = originalCameraPosition.y; // Mantém a altura original
 
-        // Rotaciona suavemente no eixo Y para focar no NPC
-        while (Quaternion.Angle(camera.transform.rotation, targetRotation) > 0.1f)
+        // Move a câmera suavemente para a posição calculada
+        while (Vector3.Distance(camera.transform.position, targetPosition) > 0.1f)
         {
-            camera.transform.rotation = Quaternion.Slerp(camera.transform.rotation, targetRotation, rotationSpeed * Time.deltaTime);
+            camera.transform.position = Vector3.Lerp(camera.transform.position, targetPosition, movementSpeed * Time.deltaTime);
             yield return null;
         }
 
-        // Garante que a rotação final seja precisa
-        camera.transform.rotation = targetRotation;
+        // Garante a posição final precisa, mas sem mexer na rotação Y
+        camera.transform.position = targetPosition;
     }
 
     public void EndConversation()
     {
         isConversationActive = false;
 
+        // Finaliza a conversa no ScreenController
         screenController.EndConversation();
 
-        // Retorna a câmera à sua posição e rotação originais
-        camera.transform.position = originalCameraPosition;
-        camera.transform.rotation = originalCameraRotation;
+        // Retorna a câmera à posição e rotação originais
+        StartCoroutine(ReturnCameraToOriginalPosition());
 
-        // Remove o listener para evitar múltiplas assinaturas
+        // Remove o listener do evento
         ConversationManager.OnConversationEnded -= EndConversation;
+    }
+
+    private IEnumerator ReturnCameraToOriginalPosition()
+    {
+        // Move a câmera suavemente de volta à posição original, preservando a rotação
+        while (Vector3.Distance(camera.transform.position, originalCameraPosition) > 0.1f)
+        {
+            camera.transform.position = Vector3.Lerp(camera.transform.position, originalCameraPosition, movementSpeed * Time.deltaTime);
+            yield return null;
+        }
+
+        // Garante a posição final precisa
+        camera.transform.position = originalCameraPosition;
+
+        // Mantém a rotação original da câmera
+        camera.transform.rotation = originalCameraRotation;
     }
 }
