@@ -1,4 +1,6 @@
 using UnityEngine;
+using DialogueEditor;
+
 
 public class ScreenController : MonoBehaviour
 {
@@ -102,8 +104,6 @@ public class ScreenController : MonoBehaviour
 
     public void EndConversation()
     {
-        isConversationActive = false; // Marca a conversa como inativa
-        // Finaliza a conversa no ConversationManager (se necessário)
-        DialogueEditor.ConversationManager.Instance.EndConversation();
+        isConversationActive = false;
     }
 }

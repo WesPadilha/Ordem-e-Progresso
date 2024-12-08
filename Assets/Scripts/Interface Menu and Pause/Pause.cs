@@ -14,6 +14,13 @@ public class Pause : MonoBehaviour
 
     public DialogNPC dialogNPC; // Referência para o script de diálogo (assegure-se de arrastar no inspector)
 
+    private void Start()
+    {
+        Pause.GameIsPaused = false; // Reseta o estado de pausa ao carregar a cena
+        Time.timeScale = 1f; // Certifica que o jogo não está pausado
+    }
+
+
     void Update()
     {
         if (Input.GetKeyDown(KeyCode.Escape))
