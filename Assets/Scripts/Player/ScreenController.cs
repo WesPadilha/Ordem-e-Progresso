@@ -1,7 +1,6 @@
 using UnityEngine;
 using DialogueEditor;
 
-
 public class ScreenController : MonoBehaviour
 {
     public GameObject Inventory;
@@ -10,6 +9,7 @@ public class ScreenController : MonoBehaviour
     public GameObject Map;
     public MainCameraController mainCameraController;   
     private bool isConversationActive = false; // Acompanhar se a conversa está ativa
+    private bool isStoreOpen = false; // Estado da loja
 
     public bool IsAnyUIActive()
     {
@@ -20,8 +20,14 @@ public class ScreenController : MonoBehaviour
     {
         bool isAnyUIOpen = Attributes.gameObject.activeSelf || Inventory.gameObject.activeSelf || Daily.gameObject.activeSelf || Map.gameObject.activeSelf || isConversationActive;
 
-        // Só permite abrir o inventário ou atributos se a conversa não estiver ativa
-        if (!isConversationActive)
+        // Fecha tudo ao pressionar Esc
+        if (Input.GetKeyDown(KeyCode.Escape))
+        {
+            CloseAllUI();
+        }
+
+        // Só permite abrir o inventário ou atributos se a conversa não estiver ativa e a loja não estiver aberta
+        if (!isConversationActive && !isStoreOpen)
         {
             if (Input.GetKeyDown(KeyCode.Tab))
             {
@@ -41,9 +47,10 @@ public class ScreenController : MonoBehaviour
             }
         }
     }
+
     void ToggleAttributes()
     {
-        if (Pause.GameIsPaused) return; // Bloqueia abertura se o jogo estiver pausado
+        if (Pause.GameIsPaused || isStoreOpen) return; // Bloqueia se o jogo estiver pausado ou loja aberta
 
         bool isActive = Attributes.gameObject.activeSelf;
         Attributes.gameObject.SetActive(!isActive);
@@ -57,7 +64,7 @@ public class ScreenController : MonoBehaviour
 
     void ToggleInventory()
     {
-        if (Pause.GameIsPaused) return; // Bloqueia abertura se o jogo estiver pausado
+        if (Pause.GameIsPaused || isStoreOpen) return; // Bloqueia se o jogo estiver pausado ou loja aberta
 
         bool isActive = Inventory.gameObject.activeSelf;
         Inventory.gameObject.SetActive(!isActive);
@@ -71,7 +78,7 @@ public class ScreenController : MonoBehaviour
 
     void ToggleDaily()
     {
-        if (Pause.GameIsPaused) return; // Bloqueia abertura se o jogo estiver pausado
+        if (Pause.GameIsPaused || isStoreOpen) return; // Bloqueia se o jogo estiver pausado ou loja aberta
 
         bool isActive = Daily.gameObject.activeSelf;
         Daily.gameObject.SetActive(!isActive);
@@ -85,7 +92,7 @@ public class ScreenController : MonoBehaviour
 
     void ToggleMap()
     {
-        if (Pause.GameIsPaused) return; // Bloqueia abertura se o jogo estiver pausado
+        if (Pause.GameIsPaused || isStoreOpen) return; // Bloqueia se o jogo estiver pausado ou loja aberta
 
         bool isActive = Map.gameObject.activeSelf;
         Map.gameObject.SetActive(!isActive);
@@ -97,6 +104,19 @@ public class ScreenController : MonoBehaviour
         }
     }
 
+    public void CloseAllUI()
+    {
+        Attributes.gameObject.SetActive(false);
+        Inventory.gameObject.SetActive(false);
+        Daily.gameObject.SetActive(false);
+        Map.gameObject.SetActive(false);
+
+        if (isStoreOpen)
+        {
+            FindObjectOfType<StoreScreen>().CloseStore();
+        }
+    }
+
     public void StartConversation()
     {
         isConversationActive = true; // Marca a conversa como ativa
@@ -105,5 +125,10 @@ public class ScreenController : MonoBehaviour
     public void EndConversation()
     {
         isConversationActive = false;
+    }
+
+    public void SetStoreState(bool state)
+    {
+        isStoreOpen = state;
     }
 }

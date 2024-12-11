@@ -16,6 +16,8 @@ public class MainController : MonoBehaviour
     // Distância mínima até o NPC
     public float stopDistance = 4f;
 
+    private bool clickedOnNPC = false; // Flag para saber se o NPC foi clicado
+
     void Start()
     {
         agent = GetComponent<NavMeshAgent>();
@@ -24,7 +26,7 @@ public class MainController : MonoBehaviour
     void Update()
     {
         // Evita interação enquanto a UI está ativa
-        if (screenController != null && screenController.IsAnyUIActive())
+        if (screenController != null && screenController.IsAnyUIActive() || Pause.GameIsPaused)
             return;
 
         // Movimento para terreno com clique direito
@@ -38,6 +40,9 @@ public class MainController : MonoBehaviour
         {
             MoveToNPC();
         }
+
+        // Verifica se chegou ao destino
+        CheckArrivalToNPC();
     }
 
     private void MoveToGround()
@@ -49,6 +54,7 @@ public class MainController : MonoBehaviour
             if (hit.collider.CompareTag(groundTag))
             {
                 agent.SetDestination(hit.point);
+                clickedOnNPC = false; // Reset da flag
             }
         }
     }
@@ -69,7 +75,20 @@ public class MainController : MonoBehaviour
 
                 // Configura o destino no NavMeshAgent
                 agent.SetDestination(targetPosition);
+
+                // Marca que foi clicado no NPC
+                clickedOnNPC = true;
             }
+        }
+    }
+
+    private void CheckArrivalToNPC()
+    {
+        if (clickedOnNPC && !agent.pathPending && agent.remainingDistance <= stopDistance)
+        {
+            // Envia um evento ou notifica que chegou perto do NPC
+            hit.collider.GetComponent<DialogNPC>()?.StartConversation();
+            clickedOnNPC = false; // Reseta a flag para evitar iniciar a conversa várias vezes
         }
     }
 }
