@@ -10,11 +10,8 @@ public class StoreScreen : MonoBehaviour
     [SerializeField] private GameObject[] MainButton;
     public ScreenController screenController; // Referência ao controlador de telas
 
-    private bool isStoreOpen = false; // Estado da loja
-
     public void OpenStore()
     {
-        isStoreOpen = true;
         store.SetActive(true);
         inventoryPlayer.SetActive(true);
         playerEquip.SetActive(false);
@@ -24,7 +21,6 @@ public class StoreScreen : MonoBehaviour
 
     public void CloseStore()
     {
-        isStoreOpen = false;
         playerEquip.SetActive(true);
         inventoryPlayer.SetActive(false);
         store.SetActive(false);

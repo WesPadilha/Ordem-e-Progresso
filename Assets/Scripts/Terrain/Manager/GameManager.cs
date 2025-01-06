@@ -1,19 +1,17 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using Pathfinding;
 
-namespace SA.TB
-{
     public class GameManager : MonoBehaviour
     {
-        public Transform curUnit;
+        public List<UnitController> units = new List<UnitController>(); 
+
+        public UnitController curUnit;
         public bool movingPlayer;
         bool hasPath;
 
-        public int actionPoints = 20;
-        
-        Node unitNode;
         Node curNode;
         Node prevNode;
 
@@ -23,22 +21,19 @@ namespace SA.TB
         public Material blue;
         public Material red;
 
-        LineRenderer pathRed;
-        LineRenderer pathBlue;
+        public LineRenderer pathRed;
+        public LineRenderer pathBlue;
         GridBase grid;
 
         public void Init()
         {
             grid = GridBase.singleton;
 
-            Vector3 worldPos = grid.GetWorldCoordinatesFromNode(5, 0, 6);
-            curUnit.transform.position = worldPos;
-            
             GameObject go = new GameObject();
             go.name = "line vis blue";
             pathBlue = go.AddComponent<LineRenderer>();
             pathBlue.startWidth = 0.2f;
-            pathBlue.endWidth = 0.2f;   
+            pathBlue.endWidth = 0.2f;
             pathBlue.material = blue;
 
             GameObject go2 = new GameObject();
@@ -47,32 +42,68 @@ namespace SA.TB
             pathRed.startWidth = 0.2f;
             pathRed.endWidth = 0.2f;
             pathRed.material = red;
+
+            for (int i = 0; i < units.Count; i++)
+            {
+                units[i].Init();
+
+            }
         }
 
         void Update()
         {
-            if(GridBase.singleton.isInit == false)
+            if (GridBase.singleton.isInit == false)
                 return;
+
+            bool overUIElement = EventSystem.current.IsPointerOverGameObject();
 
             FindNode();
-
-            if(unitNode == null && curUnit != null)
+         
+            if(Input.GetMouseButton(0) && !overUIElement)
             {
-                unitNode = grid.GetNodeFromWorldPosition(curUnit.transform.position);
+                UnitController hasUnit = NodeHasUnit(curNode);
+
+                if(curUnit != null)
+                {
+                    int lastX = curUnit.x1;
+                    int lastZ = curUnit.z1;
+
+                    if (curUnit.moving)
+                        return;
+                }
+
+                if (hasUnit == null && curUnit != null)
+                {
+                    if (hasPath && pathInfo != null)
+                    {
+                        curUnit.AddPath(pathInfo);
+                    }
+                }
+                else
+                {
+                    curUnit = hasUnit;
+                }
             }
 
-            if(unitNode == null)
+          
+
+            if (curUnit == null)
                 return;
 
-            if(prevNode != curNode)
+            if (curUnit.moving)
+                return;
+
+            #region Pathfinder
+
+            if (prevNode != curNode)
             {
-                PathfindMaster.GetInstance().RequestPathfind(unitNode, curNode, PathfinderCallbakc);
+                PathfindMaster.GetInstance().RequestPathfind(curUnit.node, curNode, PathfinderCallback); 
             }
 
             prevNode = curNode;
 
             if(hasPath && pathInfo != null)
-            {   
+            {
                 if(pathInfo.Count > 0)
                 {
                     pathBlue.positionCount = pathInfo.Count;
@@ -83,24 +114,32 @@ namespace SA.TB
                     }
                 }
 
-                if(redInfo != null)
+                if (redInfo != null)
                 {
-                    if(redInfo.Count > 0)
+                    if (redInfo.Count > 1)
                     {
                         pathRed.positionCount = redInfo.Count;
+
+                        pathRed.gameObject.SetActive(true);
 
                         for (int i = 0; i < redInfo.Count; i++)
                         {
                             pathRed.SetPosition(i, redInfo[i].targetPosition);
                         }
                     }
+                    else
+                    {
+                        pathRed.gameObject.SetActive(false);
+                    }
                 }
             }
+
+            #endregion
         }
 
-        void PathfinderCallbakc(List<Node> p)
+        void PathfinderCallback(List<Node> p)
         {
-            int curAp = actionPoints;
+            int curAp = curUnit.actionPoints;
             int needAp = 0;
 
             List<PathInfo> tp = new List<PathInfo>();
@@ -111,8 +150,8 @@ namespace SA.TB
 
             List<PathInfo> red = new List<PathInfo>();
 
-            int baseAction = 2;
-            int diag = 3;
+            int baseAction = 1;
+            int diag = 1;
 
             for (int i = 0; i < p.Count; i++)
             {
@@ -120,12 +159,12 @@ namespace SA.TB
                 Vector3 wp = grid.GetWorldCoordinatesFromNode(n.x, n.y, n.z);
                 Vector3 dir = Vector3.zero;
 
-                if(i == 0)
-                    dir = GetPathDir(curNode, n);
+                if (i == 0)
+                    dir = GetPathDir(curUnit.node, n);
                 else
                     dir = GetPathDir(p[i - 1], p[i]);
 
-                if(dir.x != 0 && dir.z != 0)
+                if (dir.x != 0 & dir.z != 0)
                     baseAction = diag;
 
                 needAp += baseAction;
@@ -145,9 +184,11 @@ namespace SA.TB
                 }
                 else
                 {
-                    tp.Add(pi); 
+                    tp.Add(pi);
                 }
             }
+
+            UIManager.singleton.UpdateActionPointsIndicator(needAp);
 
             pathInfo = tp;
             redInfo = red;
@@ -158,10 +199,23 @@ namespace SA.TB
         {
             Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
             RaycastHit hit;
-            if(Physics.Raycast(ray, out hit, Mathf.Infinity))
+            if(Physics.Raycast(ray,out hit,Mathf.Infinity))
             {
-                curNode = GridBase.singleton.GetNodeFromWorldPosition(hit.point);
+               curNode = GridBase.singleton.GetNodeFromWorldPosition(hit.point);
             }
+        }
+
+        UnitController NodeHasUnit(Node n)
+        {
+            for (int i = 0; i < units.Count; i++)
+            {
+                Node un = units[i].node;
+
+                if (un.x == n.x && un.y == n.y && un.z == n.z)
+                    return units[i];
+            }
+
+            return null;
         }
 
         Vector3 GetPathDir(Node n1, Node n2)
@@ -169,8 +223,16 @@ namespace SA.TB
             Vector3 dir = Vector3.zero;
             dir.x = n2.x - n1.x;
             dir.y = n2.y - n1.y;
-            dir.z = n2.z - n2.z;
+            dir.z = n2.z - n1.z;
             return dir;
+        }
+
+        public void EndTurn()
+        {
+            for (int i = 0; i < units.Count; i++)
+            {
+                units[i].EndTurn();
+            }
         }
 
         public static GameManager singleton;
@@ -186,5 +248,4 @@ namespace SA.TB
         public int ap;
         public Vector3 targetPosition;
     }
-}
 

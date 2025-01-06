@@ -5,9 +5,9 @@ using UnityEngine.AI;
 
 public class MainController : MonoBehaviour
 {
-    public Camera camera;
+    public Camera mainCamera;
     private RaycastHit hit;
-    private NavMeshAgent agent;
+    public NavMeshAgent agent;
     private string groundTag = "Ground";
     private string npcTag = "NPC";
 
@@ -47,7 +47,7 @@ public class MainController : MonoBehaviour
 
     private void MoveToGround()
     {
-        Ray ray = camera.ScreenPointToRay(Input.mousePosition);
+        Ray ray = mainCamera.ScreenPointToRay(Input.mousePosition);
 
         if (Physics.Raycast(ray, out hit, Mathf.Infinity))
         {
@@ -61,7 +61,7 @@ public class MainController : MonoBehaviour
 
     private void MoveToNPC()
     {
-        Ray ray = camera.ScreenPointToRay(Input.mousePosition);
+        Ray ray = mainCamera.ScreenPointToRay(Input.mousePosition);
 
         if (Physics.Raycast(ray, out hit, Mathf.Infinity))
         {
@@ -89,6 +89,31 @@ public class MainController : MonoBehaviour
             // Envia um evento ou notifica que chegou perto do NPC
             hit.collider.GetComponent<DialogNPC>()?.StartConversation();
             clickedOnNPC = false; // Reseta a flag para evitar iniciar a conversa várias vezes
+        }
+    }
+
+    public void SyncWithUnitController(Vector3 position)
+    {
+        if (agent != null)
+        {
+            agent.Warp(position); // Ajusta o agente para a nova posição
+        }
+    }
+
+    void OnDisable()
+    {
+        if (agent != null && agent.enabled && agent.isOnNavMesh)
+        {
+            // Para o agente de forma segura
+            agent.isStopped = true;
+        }
+    }
+    
+    void OnEnable()
+    {
+        if (agent != null)
+        {
+            agent.enabled = true;  // Reativa o NavMeshAgent
         }
     }
 }

@@ -9,7 +9,7 @@ public class DialogNPC : MonoBehaviour
     public ScreenController screenController;
     public Transform player;
     public Transform NPC;
-    public Camera camera;
+    public Camera npcCamera;
     public float interactionDistance = 3f;
     public float fixedDistance = 12f;
     public float movementSpeed = 5f;
@@ -68,20 +68,20 @@ public class DialogNPC : MonoBehaviour
 
     private IEnumerator MoveCameraToFixedPosition()
     {
-        float currentAngleY = camera.transform.rotation.eulerAngles.y;
+        float currentAngleY = npcCamera.transform.rotation.eulerAngles.y;
         Vector3 direction = new Vector3(Mathf.Sin(currentAngleY * Mathf.Deg2Rad), 0, Mathf.Cos(currentAngleY * Mathf.Deg2Rad));
         Vector3 targetPosition = NPC.position - direction * fixedDistance;
-        targetPosition.y = camera.transform.position.y;
+        targetPosition.y = npcCamera.transform.position.y;
 
-        while (Vector3.Distance(camera.transform.position, targetPosition) > 0.1f)
+        while (Vector3.Distance(npcCamera.transform.position, targetPosition) > 0.1f)
         {
-            camera.transform.position = Vector3.Lerp(camera.transform.position, targetPosition, movementSpeed * Time.deltaTime);
+            npcCamera.transform.position = Vector3.Lerp(npcCamera.transform.position, targetPosition, movementSpeed * Time.deltaTime);
             yield return null;
         }
 
-        conversationCameraPosition = camera.transform.position;
-        conversationCameraRotation = camera.transform.rotation;
-        camera.transform.position = targetPosition;
+        conversationCameraPosition = npcCamera.transform.position;
+        conversationCameraRotation = npcCamera.transform.rotation;
+        npcCamera.transform.position = targetPosition;
     }
 
     public void EndConversation()
@@ -103,15 +103,15 @@ public class DialogNPC : MonoBehaviour
 
     private IEnumerator ReturnCameraToConversationPosition()
     {
-        while (Vector3.Distance(camera.transform.position, conversationCameraPosition) > 0.1f || Quaternion.Angle(camera.transform.rotation, conversationCameraRotation) > 0.1f)
+        while (Vector3.Distance(npcCamera.transform.position, conversationCameraPosition) > 0.1f || Quaternion.Angle(npcCamera.transform.rotation, conversationCameraRotation) > 0.1f)
         {
-            camera.transform.position = Vector3.Lerp(camera.transform.position, conversationCameraPosition, movementSpeed * Time.deltaTime);
-            camera.transform.rotation = Quaternion.Lerp(camera.transform.rotation, conversationCameraRotation, movementSpeed * Time.deltaTime);
+            npcCamera.transform.position = Vector3.Lerp(npcCamera.transform.position, conversationCameraPosition, movementSpeed * Time.deltaTime);
+            npcCamera.transform.rotation = Quaternion.Lerp(npcCamera.transform.rotation, conversationCameraRotation, movementSpeed * Time.deltaTime);
             yield return null;
         }
 
-        camera.transform.position = conversationCameraPosition;
-        camera.transform.rotation = conversationCameraRotation;
+        npcCamera.transform.position = conversationCameraPosition;
+        npcCamera.transform.rotation = conversationCameraRotation;
     }
 
     private void RotatePlayerTowards(Transform target)
