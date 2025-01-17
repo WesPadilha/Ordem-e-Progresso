@@ -59,7 +59,7 @@ using Pathfinding;
 
             FindNode();
          
-            if(Input.GetMouseButton(0) && !overUIElement)
+            if(Input.GetMouseButton(1) && !overUIElement)
             {
                 UnitController hasUnit = NodeHasUnit(curNode);
 
@@ -199,9 +199,22 @@ using Pathfinding;
         {
             Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
             RaycastHit hit;
-            if(Physics.Raycast(ray,out hit,Mathf.Infinity))
+
+            if (Physics.Raycast(ray, out hit, Mathf.Infinity))
             {
-               curNode = GridBase.singleton.GetNodeFromWorldPosition(hit.point);
+                Node nodeAtHitPoint = GridBase.singleton.GetNodeFromWorldPosition(hit.point);
+
+                // Verifique se o Node é acessível (isWalkable)
+                if (nodeAtHitPoint != null && nodeAtHitPoint.isWalkable)
+                {
+                    curNode = nodeAtHitPoint;
+                }
+                else
+                {
+                    // Se o node atingido não for acessível, não atualize curNode
+                    // Opcional: Mostrar algum tipo de feedback visual ou mensagem para o usuário
+                    Debug.Log("O Node atingido não é acessível.");
+                }
             }
         }
 

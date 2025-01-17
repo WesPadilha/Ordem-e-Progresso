@@ -15,6 +15,7 @@ using UnityEngine;
         bool initLerp;
         public bool moving;
 
+        public ScreenController screenController;
         public int actionPoints = 20; // Configurado no Inspector
         private int initialActionPoints; // Para armazenar o valor inicial de actionPoints
         public float walk_speed = 2;
@@ -48,6 +49,9 @@ using UnityEngine;
 
         void Update()
         {
+            if (screenController != null && screenController.IsAnyUIActive() || Pause.GameIsPaused)
+                return;
+
             x1 = Mathf.FloorToInt(transform.position.x);
             z1 = Mathf.FloorToInt(transform.position.z);
 
