@@ -30,7 +30,7 @@ public class DialogNPC : MonoBehaviour
 
     private void OnMouseOver()
     {
-        if (Pause.GameIsPaused || Vector3.Distance(player.position, transform.position) > interactionDistance || screenController.IsAnyUIActive())
+        if (Pause.GameIsPaused || Vector3.Distance(player.position, transform.position) > interactionDistance || screenController.IsAnyUIActive() || screenController.IsStorageOpen())
             return;
 
         if (Input.GetMouseButtonDown(0))

@@ -209,12 +209,6 @@ using Pathfinding;
                 {
                     curNode = nodeAtHitPoint;
                 }
-                else
-                {
-                    // Se o node atingido não for acessível, não atualize curNode
-                    // Opcional: Mostrar algum tipo de feedback visual ou mensagem para o usuário
-                    Debug.Log("O Node atingido não é acessível.");
-                }
             }
         }
 

@@ -34,7 +34,7 @@ public class EnemyGroupController : MonoBehaviour
         {
             if (enemy != null)
             {
-                enemy.SetHasTriggered(true);
+                enemy.SetHasTriggered(true); // Pode ser utilizado para sinalizar aos inimigos que eles foram ativados
             }
         }
     }

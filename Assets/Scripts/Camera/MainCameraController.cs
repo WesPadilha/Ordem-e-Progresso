@@ -27,7 +27,7 @@ public class MainCameraController : MonoBehaviour
     private void Update()
     {
         // Bloqueia movimentação da câmera se alguma UI estiver ativa
-        if (screenController != null && screenController.IsAnyUIActive())
+        if (screenController != null && screenController.IsAnyUIActive() || screenController.IsStorageOpen())
             return;
 
         // Movimento da câmera ao atingir as bordas da tela

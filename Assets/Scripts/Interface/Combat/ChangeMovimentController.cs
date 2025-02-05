@@ -128,7 +128,7 @@ public class ChangeMovimentController : MonoBehaviour
     // Função de Coroutine que espera 1 segundo antes de chamar o LoadLevel
     private IEnumerator DelayedLoadLevel()
     {
-        yield return new WaitForSeconds(1f);
+        yield return new WaitForSeconds(0.5f);
         LevelEditor.singleton.LoadLevel();
     }
 
