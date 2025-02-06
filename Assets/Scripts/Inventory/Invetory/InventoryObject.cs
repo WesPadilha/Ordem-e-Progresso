@@ -15,6 +15,7 @@ public enum InterfaceType
 [CreateAssetMenu(fileName = "New Inventory", menuName = "InventorySystem/Inventory")]
 public class InventoryObject : ScriptableObject
 {
+    public int Money;
     public string savePath;
     public ItemDatabaseObject database;
     public InterfaceType type;
@@ -81,13 +82,19 @@ public class InventoryObject : ScriptableObject
         }
     }
 
-    public void RemoveItem(Item _item)
+    // No script InventoryObject
+    public void RemoveItem(ItemObject itemObject)
     {
+        if (itemObject == null) return;
+
+        // Converte ItemObject para Item
+        Item item = new Item(itemObject);
+
         for (int i = 0; i < GetSlots.Length; i++)
         {
-            if(GetSlots[i].item == _item)
+            if (GetSlots[i].item.Id == item.Id)
             {
-                GetSlots[i].UpdateSlot(null, 0);
+                GetSlots[i].UpdateSlot(null, 0); // Remove o item do slot
             }
         }
     }

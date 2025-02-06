@@ -17,6 +17,7 @@ MonoBehaviour:
   type: 0
   description: 
   data:
-    Name: 
-    Id: 1
+    Name: Armor
+    Id: 2
     buffs: []
+  price: 0
