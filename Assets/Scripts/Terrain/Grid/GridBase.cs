@@ -301,6 +301,12 @@ using UnityEngine;
         {
             singleton = this;
         }
+
+        void OnDestroy()
+        {
+            ClearLevel(true);
+            if (debugNodeObj != null) DestroyImmediate(debugNodeObj);
+        }
     }
 
     [System.Serializable]

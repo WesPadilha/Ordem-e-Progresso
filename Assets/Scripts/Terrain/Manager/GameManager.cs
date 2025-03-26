@@ -247,6 +247,12 @@ using Pathfinding;
         {
             singleton = this;
         } 
+
+        void OnDestroy()
+        {
+            if (pathBlue != null) Destroy(pathBlue.gameObject);
+            if (pathRed != null) Destroy(pathRed.gameObject);
+        }
     }
 
     [System.Serializable]

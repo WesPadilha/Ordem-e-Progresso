@@ -145,4 +145,8 @@ public class ScreenController : MonoBehaviour
     {
         return isStorageOpen; // Retorna o estado do armazenamento (se está aberto ou fechado)
     }
+    public bool IsStoreOpen()
+    {
+        return isStoreOpen;
+    }
 }

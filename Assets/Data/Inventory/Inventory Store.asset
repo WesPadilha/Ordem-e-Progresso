@@ -10,44 +10,14 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: eb46d2af88a24e64cbc577b6bcfe84b5, type: 3}
-  m_Name: Player Inventory
+  m_Name: Inventory Store
   m_EditorClassIdentifier: 
-  Money: 890
+  Money: 8380
   savePath: /inventory.Save
   database: {fileID: 11400000, guid: 9631f2e4bb7b6ec47a78c9c77e48e892, type: 2}
-  type: 0
+  type: 2
   Container:
     Slots:
-    - AllowedItems: 
-      item:
-        Name: 
-        Id: -1
-        buffs: []
-      amount: 0
-    - AllowedItems: 
-      item:
-        Name: 
-        Id: -1
-        buffs: []
-      amount: 0
-    - AllowedItems: 
-      item:
-        Name: 
-        Id: -1
-        buffs: []
-      amount: 0
-    - AllowedItems: 
-      item:
-        Name: 
-        Id: -1
-        buffs: []
-      amount: 0
-    - AllowedItems: 
-      item:
-        Name: 
-        Id: -1
-        buffs: []
-      amount: 0
     - AllowedItems: 
       item:
         Name: 

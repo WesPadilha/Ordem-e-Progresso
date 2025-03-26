@@ -11,6 +11,7 @@ public class Storage : MonoBehaviour
     public float interactionDistance = 3f;
     public float fixedDistance = 12f;
     public float movementSpeed = 5f;
+    public GameObject hud;
 
     private Vector3 originalCameraPosition;
     private Quaternion originalCameraRotation;
@@ -37,12 +38,14 @@ public class Storage : MonoBehaviour
         originalCameraRotation = storageCamera.transform.rotation;
 
         StartCoroutine(MoveCameraToStoragePosition()); // Move a câmera para a posição do Storage
+        hud.SetActive(false);
     }
 
     public void CloseStorage()
     {
         storageUI.SetActive(false); // Fecha a UI de storage
         screenController.SetStorageState(false); // Reseta o estado do storage
+        hud.SetActive(true);
     }
 
     private IEnumerator MoveCameraToStoragePosition()

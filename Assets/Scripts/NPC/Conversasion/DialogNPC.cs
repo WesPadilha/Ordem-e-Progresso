@@ -14,6 +14,7 @@ public class DialogNPC : MonoBehaviour
     public float fixedDistance = 12f;
     public float movementSpeed = 5f;
     public NPCOrientationController npcOrientationController;
+    public GameObject hud;
 
     private bool isConversationActive = false;
     private Vector3 conversationCameraPosition;
@@ -64,6 +65,8 @@ public class DialogNPC : MonoBehaviour
         {
             ConversationManager.OnConversationEnded += EndConversation;
         }
+
+        hud.SetActive(!hud.activeSelf);
     }
 
     private IEnumerator MoveCameraToFixedPosition()
@@ -99,6 +102,12 @@ public class DialogNPC : MonoBehaviour
         StartCoroutine(ReturnCameraToConversationPosition());
         npcOrientationController.EndConversation();
         ConversationManager.OnConversationEnded -= EndConversation;
+
+        // Só ativa o HUD se a loja ou armazenamento não estiverem abertos
+        if (!screenController.IsStorageOpen() && !screenController.IsStoreOpen())
+        {
+            hud.SetActive(true);
+        }
     }
 
     private IEnumerator ReturnCameraToConversationPosition()

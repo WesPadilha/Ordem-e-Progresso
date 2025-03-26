@@ -9,6 +9,7 @@ public class StoreScreen : MonoBehaviour
     public GameObject playerEquip;
     [SerializeField] private GameObject[] MainButton;
     public ScreenController screenController; // Referência ao controlador de telas
+    public GameObject hud;
 
     public void OpenStore()
     {
@@ -17,6 +18,7 @@ public class StoreScreen : MonoBehaviour
         playerEquip.SetActive(false);
         screenController.SetStoreState(true); // Notifica o controlador de telas
         DesableMainButton();
+        hud.SetActive(false);
     }
 
     public void CloseStore()
@@ -26,6 +28,7 @@ public class StoreScreen : MonoBehaviour
         store.SetActive(false);
         screenController.SetStoreState(false); // Notifica o controlador de telas
         StartMainButton();
+        hud.SetActive(true);
     }
 
     private void DesableMainButton()

@@ -3,7 +3,7 @@ using UnityEngine.UI;
 using UnityEngine.EventSystems;
 using TMPro;
 
-public class VendorSlot : MonoBehaviour, IPointerClickHandler
+public class VendorSlot : MonoBehaviour, IPointerClickHandler, IBeginDragHandler, IDragHandler, IEndDragHandler
 {
     public Image icon; // Referência ao ícone do item
     public TextMeshProUGUI priceText; // Referência ao texto do preço
@@ -48,7 +48,48 @@ public class VendorSlot : MonoBehaviour, IPointerClickHandler
     {
         if (item != null)
         {
-            vendorUI.TryBuyItem(item); // Tenta comprar o item
+            vendorUI.BuyItemFromVendor(item); // Tenta comprar o item
         }
+    }
+
+    // Inicia o arrasto do item
+    public void OnBeginDrag(PointerEventData eventData)
+    {
+        if (item != null)
+        {
+            MouseData.tempItemBeingDragged = CreateTempItem();
+        }
+    }
+
+    // Atualiza a posição do item arrastado
+    public void OnDrag(PointerEventData eventData)
+    {
+        if (MouseData.tempItemBeingDragged != null)
+        {
+            MouseData.tempItemBeingDragged.GetComponent<RectTransform>().position = Input.mousePosition;
+        }
+    }
+
+    // Finaliza o arrasto do item
+    public void OnEndDrag(PointerEventData eventData)
+    {
+        if (MouseData.tempItemBeingDragged != null)
+        {
+            Destroy(MouseData.tempItemBeingDragged);
+            vendorUI.OnDragEnd(gameObject);
+        }
+    }
+
+    // Cria um item temporário para ser arrastado
+    private GameObject CreateTempItem()
+    {
+        GameObject tempItem = new GameObject();
+        var rt = tempItem.AddComponent<RectTransform>();
+        rt.sizeDelta = new Vector2(80, 80);
+        tempItem.transform.SetParent(transform.parent);
+        var img = tempItem.AddComponent<Image>();
+        img.sprite = icon.sprite;
+        img.raycastTarget = false;
+        return tempItem;
     }
 }

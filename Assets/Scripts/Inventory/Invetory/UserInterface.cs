@@ -5,8 +5,6 @@ using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
-
-
 public abstract class UserInterface : MonoBehaviour
 {
     public InventoryObject inventory;
@@ -39,11 +37,6 @@ public abstract class UserInterface : MonoBehaviour
             _slot.slotDisplay.GetComponentInChildren<TextMeshProUGUI>().text = "";
         }
     }
-
-    //void Update()
-    //{
-    //    slotsOnInterface.UpdateSlotDisplay();
-    //}   
 
     public abstract void CreateSlots();
 

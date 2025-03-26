@@ -20,4 +20,4 @@ MonoBehaviour:
     Name: Armor
     Id: 2
     buffs: []
-  price: 0
+  price: 5

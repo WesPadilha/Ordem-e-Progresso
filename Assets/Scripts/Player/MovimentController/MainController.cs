@@ -13,12 +13,15 @@ public class MainController : MonoBehaviour
     private string storageTag = "Storage"; // Tag para Storage
 
     public ScreenController screenController;
+    public GameObject selectionPrefab; // Prefab do selection
 
     // Distância mínima até o NPC ou Storage
     public float stopDistance = 4f;
 
     private bool clickedOnNPC = false; // Flag para saber se o NPC foi clicado
     private bool clickedOnStorage = false; // Flag para saber se o Storage foi clicado
+
+    private GameObject currentSelection; // Referência para o selection atual
 
     void Start()
     {
@@ -60,7 +63,47 @@ public class MainController : MonoBehaviour
                 agent.SetDestination(hit.point);
                 clickedOnNPC = false; // Reset da flag
                 clickedOnStorage = false; // Reset da flag
+
+                // Destrói o selection anterior, se existir
+                if (currentSelection != null)
+                {
+                    Destroy(currentSelection);
+                }
+
+                // Define a rotação desejada (90 graus no eixo X)
+                Quaternion rotation = Quaternion.Euler(90f, 0f, 0f);
+
+                // Instancia o novo selection com a rotação ajustada
+                currentSelection = Instantiate(selectionPrefab, hit.point + new Vector3(0, 0.25f, 0), rotation);
+                StartCoroutine(AnimateSelection(currentSelection));
             }
+        }
+    }
+
+    private IEnumerator AnimateSelection(GameObject selection)
+    {
+        float duration = 2f; // Duração total da animação
+        float elapsedTime = 0f;
+        Vector3 initialScale = selection.transform.localScale;
+
+        while (elapsedTime < duration)
+        {
+            // Verifica se o objeto ainda existe
+            if (selection == null)
+            {
+                yield break; // Sai da corrotina se o objeto foi destruído
+            }
+
+            // Aumenta a escala em 1 cm por segundo
+            selection.transform.localScale = initialScale + Vector3.one * (elapsedTime / duration);
+            elapsedTime += Time.deltaTime;
+            yield return null;
+        }
+
+        // Verifica novamente se o objeto ainda existe antes de destruí-lo
+        if (selection != null)
+        {
+            Destroy(selection);
         }
     }
 
@@ -134,11 +177,8 @@ public class MainController : MonoBehaviour
             clickedOnStorage = false; // Reseta a flag para não chamar novamente
         }
     }
-}
 
-
-
-    /*public void SyncWithUnitController(Vector3 position)
+    public void SyncWithUnitController(Vector3 position)
     {
         if (agent != null)
         {
@@ -146,7 +186,7 @@ public class MainController : MonoBehaviour
         }
     }
 
-    /*void OnDisable()
+    void OnDisable()
     {
         if (agent != null && agent.enabled && agent.isOnNavMesh)
         {
@@ -161,4 +201,5 @@ public class MainController : MonoBehaviour
         {
             agent.enabled = true;  // Reativa o NavMeshAgent
         }
-    }*/
+    }
+}
