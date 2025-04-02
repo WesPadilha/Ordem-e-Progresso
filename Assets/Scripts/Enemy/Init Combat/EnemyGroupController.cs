@@ -4,7 +4,8 @@ using UnityEngine;
 public class EnemyGroupController : MonoBehaviour
 {
     public List<PlayerProximityDetector> enemiesInGroup = new List<PlayerProximityDetector>();
-    public ChangeMovimentController changeMovimentController; // Referência ao controlador de movimentação
+    public ChangeMovimentController changeMovimentController;
+    public bool groupActivated = false; // Indica se este grupo já foi ativado
 
     public void RegisterEnemy(PlayerProximityDetector enemy)
     {
@@ -14,27 +15,38 @@ public class EnemyGroupController : MonoBehaviour
         }
     }
 
+    public void ActivateGroup()
+    {
+        if (groupActivated) return;
+
+        groupActivated = true;
+        GlobalEnemyGroupManager.Instance.RegisterActiveGroup(this); // Registra este grupo como ativo
+
+        if (!GlobalEnemyGroupManager.Instance.gridActivated && changeMovimentController != null)
+        {
+            changeMovimentController.ToggleGrid();
+            GlobalEnemyGroupManager.Instance.gridActivated = true;
+        }
+
+        foreach (var enemy in enemiesInGroup)
+        {
+            if (enemy != null && enemy.enemyController != null)
+            {
+                enemy.enemyController.SetActive(true);
+            }
+        }
+    }
+
     public void EnemyDestroyed(PlayerProximityDetector enemy)
     {
         if (enemy != null && enemiesInGroup.Contains(enemy))
         {
             enemiesInGroup.Remove(enemy);
 
-            // Verifica se todos os inimigos foram destruídos
-            if (enemiesInGroup.Count == 0 && changeMovimentController != null)
+            if (enemiesInGroup.Count == 0)
             {
-                changeMovimentController.ToggleGrid();
-            }
-        }
-    }
-
-    public void ActivateAllEnemies()
-    {
-        foreach (var enemy in enemiesInGroup)
-        {
-            if (enemy != null)
-            {
-                enemy.SetHasTriggered(true); // Pode ser utilizado para sinalizar aos inimigos que eles foram ativados
+                groupActivated = false;
+                GlobalEnemyGroupManager.Instance.UnregisterGroup(this); // Notifica que este grupo foi derrotado
             }
         }
     }

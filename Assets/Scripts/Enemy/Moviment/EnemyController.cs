@@ -8,6 +8,8 @@ public class EnemyController : MonoBehaviour
     public float walk_speed = 2;
     public float rot_speed = 8;
     public int stopDistance = 1;
+    public int actionPoints = 20; // Configurable in Inspector
+    private int initialActionPoints; // To store initial value
 
     private List<PathInfo> path;
     private int pathIndex;
@@ -21,21 +23,20 @@ public class EnemyController : MonoBehaviour
     private Node currentNode;
     private bool isPlayerInRange = false;
     private bool isInitialized = false;
+    private bool isActive = false;
 
     void Start()
     {
+        initialActionPoints = actionPoints; // Store initial value
         StartCoroutine(InitializeWhenReady());
     }
 
     IEnumerator InitializeWhenReady()
     {
-        // Espera até que o GridBase esteja pronto
         while (GridBase.singleton == null || !GridBase.singleton.isInit)
         {
             yield return null;
         }
-
-        // Espera mais um frame para garantir completa inicialização
         yield return null;
         
         Init();
@@ -56,7 +57,7 @@ public class EnemyController : MonoBehaviour
 
     void Update()
     {
-        if (!isInitialized || Pause.GameIsPaused) return;
+        if (!isInitialized || Pause.GameIsPaused || !isActive) return; 
 
         CheckPlayerDistance();
 
@@ -66,10 +67,21 @@ public class EnemyController : MonoBehaviour
         }
     }
 
+    public void SetActive(bool active)
+    {
+        isActive = active;
+        if (active)
+        {
+            isPlayerInRange = false;
+            moving = false;
+            path = null;
+            actionPoints = initialActionPoints; // Reset action points when activated
+        }
+    }
+
     void CheckPlayerDistance()
     {
-        // Verificação adicional de segurança
-        if (currentNode == null || GridBase.singleton == null) return;
+        if (currentNode == null || GridBase.singleton == null || actionPoints <= 0) return;
 
         GameObject player = GameObject.FindGameObjectWithTag("Player");
         if (player == null) return;
@@ -89,7 +101,7 @@ public class EnemyController : MonoBehaviour
             isPlayerInRange = false;
             StartChasing(playerNode);
         }
-        else if (!isPlayerInRange && !moving)
+        else if (!isPlayerInRange && !moving && actionPoints > 0)
         {
             StartChasing(playerNode);
         }
@@ -97,7 +109,7 @@ public class EnemyController : MonoBehaviour
 
     void StartChasing(Node targetNode)
     {
-        if (targetNode == null || !targetNode.isWalkable) return;
+        if (targetNode == null || !targetNode.isWalkable || actionPoints <= 0) return;
 
         PathfindMaster.GetInstance().RequestPathfind(currentNode, targetNode, PathfinderCallback);
     }
@@ -110,7 +122,7 @@ public class EnemyController : MonoBehaviour
 
     void PathfinderCallback(List<Node> p)
     {
-        if (p == null || p.Count == 0 || currentNode == null) return;
+        if (p == null || p.Count == 0 || currentNode == null || actionPoints <= 0) return;
 
         Node lastNode = p[p.Count - 1];
         int finalDistance = Mathf.Abs(currentNode.x - lastNode.x) + Mathf.Abs(currentNode.z - lastNode.z);
@@ -118,6 +130,14 @@ public class EnemyController : MonoBehaviour
         {
             isPlayerInRange = true;
             return;
+        }
+
+        // Calculate total AP cost of the path
+        int totalAPCost = p.Count;
+        if (totalAPCost > actionPoints)
+        {
+            // Trim path to only what we can afford
+            p = p.GetRange(0, actionPoints);
         }
 
         if (p.Count > stopDistance)
@@ -136,7 +156,7 @@ public class EnemyController : MonoBehaviour
             Node n = p[i];
             Vector3 wp = GridBase.singleton.GetWorldCoordinatesFromNode(n.x, n.y, n.z);
             PathInfo pi = new PathInfo();
-            pi.ap = 1;
+            pi.ap = 1; // Each step costs 1 AP
             pi.targetPosition = wp;
             tp.Add(pi);
         }
@@ -151,7 +171,7 @@ public class EnemyController : MonoBehaviour
     {
         if (!initLerp)
         {
-            if (pathIndex >= path.Count)
+            if (pathIndex >= path.Count || actionPoints <= 0)
             {
                 moving = false;
                 return;
@@ -177,6 +197,9 @@ public class EnemyController : MonoBehaviour
         {
             moveT = 1;
             initLerp = false;
+            
+            // Deduct action points when reaching a node
+            actionPoints -= path[pathIndex].ap;
             
             currentNode = GridBase.singleton.GetNodeFromWorldPosition(targetPosition);
             if (currentNode != null)
@@ -204,6 +227,11 @@ public class EnemyController : MonoBehaviour
                 transform.rotation = Quaternion.Slerp(transform.rotation, targetRot, rotateT);
             }
         }
+    }
+
+    public void EndTurn()
+    {
+        actionPoints = initialActionPoints; // Reset action points at end of turn
     }
 
     void OnDestroy()

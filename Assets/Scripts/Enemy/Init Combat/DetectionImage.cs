@@ -44,19 +44,18 @@ public class DetectionImage : MonoBehaviour
         targetImage.gameObject.SetActive(false); // Começa invisível
     }
 
-    void Update()
+    private void Update()
     {
-        if (hasTriggered) return; // Impede que a imagem seja acionada novamente após o tempo de 3 segundos
+        if (hasTriggered || enemyGroupController.groupActivated) return; // Não faz nada se o grupo já foi ativado
 
         bool isAnyEnemyInRange = false;
 
-        // Verifica se o jogador está dentro do raio de detecção de algum inimigo
         foreach (var enemy in enemyGroupController.enemiesInGroup)
         {
-            if (enemy != null)
+            if (enemy != null && !enemyGroupController.groupActivated)
             {
                 float distanceToPlayer = Vector3.Distance(transform.position, player.position);
-                if (distanceToPlayer <= detectionRadius) // Se o jogador estiver dentro do raio de 10 metros de qualquer inimigo
+                if (distanceToPlayer <= detectionRadius)
                 {
                     isAnyEnemyInRange = true;
                     break;
@@ -64,22 +63,22 @@ public class DetectionImage : MonoBehaviour
             }
         }
 
-        if (isAnyEnemyInRange) // Caso algum inimigo esteja na área de detecção
+        if (isAnyEnemyInRange)
         {
-            if (!isInsideDetectionArea) // Caso o jogador entre na área de detecção
+            if (!isInsideDetectionArea)
             {
                 isInsideDetectionArea = true;
-                if (currentCoroutine != null) StopCoroutine(currentCoroutine); // Para qualquer reversão em andamento
-                currentCoroutine = StartCoroutine(FillImage()); // Começa o preenchimento da imagem
+                if (currentCoroutine != null) StopCoroutine(currentCoroutine);
+                currentCoroutine = StartCoroutine(FillImage());
             }
         }
-        else // Caso o jogador esteja fora da área de detecção
+        else
         {
-            if (isInsideDetectionArea) // Caso o jogador saia da área de detecção
+            if (isInsideDetectionArea)
             {
                 isInsideDetectionArea = false;
-                if (currentCoroutine != null) StopCoroutine(currentCoroutine); // Para qualquer preenchimento em andamento
-                currentCoroutine = StartCoroutine(ReverseFillImage()); // Começa a reverter o preenchimento da imagem
+                if (currentCoroutine != null) StopCoroutine(currentCoroutine);
+                currentCoroutine = StartCoroutine(ReverseFillImage());
             }
         }
     }
