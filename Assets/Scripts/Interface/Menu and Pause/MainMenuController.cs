@@ -23,6 +23,11 @@ public class MainMenuController : MonoBehaviour
         SceneManager.LoadScene("Tutorial");
     }
 
+    public void NewGame()
+    {
+        SceneManager.LoadScene("characterCreation");
+    }
+
     public void Options()
     {
         Option.SetActive(true);
