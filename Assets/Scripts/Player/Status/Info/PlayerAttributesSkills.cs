@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
 
@@ -37,29 +35,42 @@ public class PlayerAttributesSkills : MonoBehaviour
     public TMP_Text defenseText;
     public TMP_Text levelText;
     public TMP_Text maxWeightText;
+    
+    [Header("Progressão UI References")]
+    public TMP_Text availablePointsText;
 
-    void Start()
+    private void Start()
     {
-        UpdateUI();
+        if (characterData != null)
+        {
+            characterData.OnDataChanged += UpdateUI;
+            UpdateUI();
+        }
+        else
+        {
+            Debug.LogWarning("CharacterData não atribuído!");
+        }
+    }
+
+    private void OnDestroy()
+    {
+        if (characterData != null)
+        {
+            characterData.OnDataChanged -= UpdateUI;
+        }
     }
 
     public void UpdateUI()
     {
-        if (characterData == null)
-        {
-            Debug.LogWarning("CharacterData not assigned!");
-            return;
-        }
+        if (characterData == null) return;
 
-        // Update Attributes with labels
         strengthText.text = $"Força: {characterData.strength}";
-        intellectionText.text = $"Intelecto: {characterData.intellection}";
+        intellectionText.text = $"Intelecção: {characterData.intellection}";
         luckText.text = $"Sorte: {characterData.luck}";
         intelligenceText.text = $"Inteligência: {characterData.intelligence}";
         charismaText.text = $"Carisma: {characterData.charisma}";
         agilityText.text = $"Agilidade: {characterData.agility}";
 
-        // Update Skills with labels
         arrombamentoText.text = $"Arrombamento: {characterData.arrombamento}";
         atletismoText.text = $"Atletismo: {characterData.atletismo}";
         cienciasText.text = $"Ciências: {characterData.ciencias}";
@@ -75,16 +86,12 @@ public class PlayerAttributesSkills : MonoBehaviour
         religiaoText.text = $"Religião: {characterData.religiao}";
         rouboText.text = $"Roubo: {characterData.roubo}";
 
-        // Update Status with labels
         maxLifeText.text = $"Vida: {characterData.maxLife}";
         actionPointsText.text = $"PA: {characterData.actionPoints}";
         defenseText.text = $"Defesa: {characterData.defense}";
         levelText.text = $"Nível: {characterData.level}";
-        maxWeightText.text = $"Peso Máximo: {characterData.maxWeight}kg";
-    }
-
-    public void RefreshUI()
-    {
-        UpdateUI();
+        maxWeightText.text = $"Peso: {characterData.maxWeight}kg";
+        
+        availablePointsText.text = $"Pontos: {characterData.availableSkillPoints}";
     }
 }

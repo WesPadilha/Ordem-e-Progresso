@@ -4,13 +4,31 @@ using TMPro;
 
 public class CreationPerk : MonoBehaviour
 {
+    [System.Serializable]
+    public class PerkDescriptions
+    {
+        [TextArea(10, 10)]
+        public string perk1;
+        [TextArea(10, 10)]
+        public string perk2;
+        [TextArea(10, 10)]
+        public string perk3;
+        [TextArea(10, 10)]
+        public string perk4;
+        [TextArea(10, 10)]
+        public string perk5;
+    }
+
+    public PerkDescriptions descriptions;
+
+    [Header("Perk Buttons")]
     public Button perk1;
     public Button perk2;
     public Button perk3;
     public Button perk4;
     public Button perk5;
 
-    public TMP_Text point;
+    public TMP_Text pointText;
 
     private bool perk1Chosen = false;
     private bool perk2Chosen = false;
@@ -22,107 +40,98 @@ public class CreationPerk : MonoBehaviour
 
     void Start()
     {
-        // Adiciona os listeners aos botões
         perk1.onClick.AddListener(() => TogglePerk(1));
         perk2.onClick.AddListener(() => TogglePerk(2));
         perk3.onClick.AddListener(() => TogglePerk(3));
         perk4.onClick.AddListener(() => TogglePerk(4));
         perk5.onClick.AddListener(() => TogglePerk(5));
-        
-        // Atualiza o texto de pontos
+
+        SetupPerkDescriptions();
         UpdatePointsText();
+        UpdatePerkButtonColors();
+    }
+
+    private void SetupPerkDescriptions()
+    {
+        SetupPerkDescription(perk1, descriptions.perk1);
+        SetupPerkDescription(perk2, descriptions.perk2);
+        SetupPerkDescription(perk3, descriptions.perk3);
+        SetupPerkDescription(perk4, descriptions.perk4);
+        SetupPerkDescription(perk5, descriptions.perk5);
+    }
+
+    private void SetupPerkDescription(Button button, string description)
+    {
+        var desc = button.gameObject.AddComponent<ClickDescription>();
+        desc.description = description;
     }
 
     void TogglePerk(int perkNumber)
     {
         if (points == 0 && !IsPerkChosen(perkNumber))
-            return; // Não faz nada se não houver pontos disponíveis e o perk não for escolhido
+            return;
 
-        // Verifica se o perk já foi escolhido e desmarque-o
         switch (perkNumber)
         {
             case 1:
-                if (perk1Chosen)
-                {
-                    perk1Chosen = false;
-                    points = 1; // Recupera o ponto
-                }
-                else if (points > 0)
-                {
-                    perk1Chosen = true;
-                    points = 0; // Gasta o ponto
-                }
+                perk1Chosen = !perk1Chosen;
+                points = perk1Chosen ? 0 : 1;
                 break;
-
             case 2:
-                if (perk2Chosen)
-                {
-                    perk2Chosen = false;
-                    points = 1; // Recupera o ponto
-                }
-                else if (points > 0)
-                {
-                    perk2Chosen = true;
-                    points = 0; // Gasta o ponto
-                }
+                perk2Chosen = !perk2Chosen;
+                points = perk2Chosen ? 0 : 1;
                 break;
-
             case 3:
-                if (perk3Chosen)
-                {
-                    perk3Chosen = false;
-                    points = 1; // Recupera o ponto
-                }
-                else if (points > 0)
-                {
-                    perk3Chosen = true;
-                    points = 0; // Gasta o ponto
-                }
+                perk3Chosen = !perk3Chosen;
+                points = perk3Chosen ? 0 : 1;
                 break;
-
             case 4:
-                if (perk4Chosen)
-                {
-                    perk4Chosen = false;
-                    points = 1; // Recupera o ponto
-                }
-                else if (points > 0)
-                {
-                    perk4Chosen = true;
-                    points = 0; // Gasta o ponto
-                }
+                perk4Chosen = !perk4Chosen;
+                points = perk4Chosen ? 0 : 1;
                 break;
-
             case 5:
-                if (perk5Chosen)
-                {
-                    perk5Chosen = false;
-                    points = 1; // Recupera o ponto
-                }
-                else if (points > 0)
-                {
-                    perk5Chosen = true;
-                    points = 0; // Gasta o ponto
-                }
+                perk5Chosen = !perk5Chosen;
+                points = perk5Chosen ? 0 : 1;
                 break;
         }
 
-        // Atualiza o texto de pontos
         UpdatePointsText();
+        UpdatePerkButtonColors();
     }
 
     void UpdatePointsText()
     {
-        point.text = "Pontos: " + points.ToString();
+        pointText.text = "Pontos: " + points.ToString();
     }
 
-    // Método que verifica se algum perk foi escolhido
+    private void UpdatePerkButtonColors()
+    {
+        UpdatePerkButtonColor(perk1, perk1Chosen);
+        UpdatePerkButtonColor(perk2, perk2Chosen);
+        UpdatePerkButtonColor(perk3, perk3Chosen);
+        UpdatePerkButtonColor(perk4, perk4Chosen);
+        UpdatePerkButtonColor(perk5, perk5Chosen);
+    }
+
+    private void UpdatePerkButtonColor(Button button, bool isActive)
+    {
+        if (button == null) return;
+        
+        ColorBlock colors = button.colors;
+        colors.normalColor = isActive ? Color.green : Color.white;
+        colors.highlightedColor = isActive ? new Color(0.2f, 0.8f, 0.2f) : new Color(0.8f, 0.8f, 0.8f);
+        colors.pressedColor = isActive ? new Color(0.1f, 0.5f, 0.1f) : new Color(0.7f, 0.7f, 0.7f);
+        colors.selectedColor = isActive ? Color.green : Color.white;
+        button.colors = colors;
+        
+        button.image.color = isActive ? Color.green : Color.white;
+    }
+
     public bool IsAnyPerkChosen()
     {
         return perk1Chosen || perk2Chosen || perk3Chosen || perk4Chosen || perk5Chosen;
     }
 
-    // Método auxiliar para verificar se o perk específico foi escolhido
     private bool IsPerkChosen(int perkNumber)
     {
         switch (perkNumber)

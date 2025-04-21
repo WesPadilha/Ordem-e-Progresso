@@ -37,6 +37,13 @@ public class MenuCreationController : MonoBehaviour
             return;
         }
 
+        // Check if all bonus points are used
+        if (skills.GetAvailableBonusPoints() > 0)
+        {
+            ShowErrorMessage("Você precisa usar todos os pontos bônus antes de continuar!");
+            return;
+        }
+
         // Keep the perk check but don't save it
         if (!perkController.IsAnyPerkChosen())
         {

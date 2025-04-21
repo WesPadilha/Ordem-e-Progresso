@@ -1,8 +1,12 @@
 using UnityEngine;
+using System;
 
 [CreateAssetMenu(fileName = "NewCharacterData", menuName = "Character/Character Data")]
 public class CharacterData : ScriptableObject
 {
+    public event Action OnDataChanged;
+    public event Action OnLifeChanged;
+
     [Header("Atributos")]
     public int strength;
     public int intellection;
@@ -31,8 +35,56 @@ public class CharacterData : ScriptableObject
     public int maxLife;
     public int actionPoints;
     public int defense;
-    public int level;
+    public int currentExperience;
+    public int maxExperience = 100;
+    public int level = 0;
     public int maxWeight;
+
+    [Header("Progressão")]
+    public int availableSkillPoints = 0;
+
+    public void NotifyChanges()
+    {
+        OnDataChanged?.Invoke();
+    }
+
+    public void NotifyLifeChanged()
+    {
+        OnLifeChanged?.Invoke();
+        OnDataChanged?.Invoke();
+    }
+
+    public void AddExperience(int amount)
+    {
+        currentExperience += amount;
+        if (currentExperience >= maxExperience && level < 10)
+        {
+            LevelUp();
+        }
+        NotifyChanges();
+    }
+
+    private void LevelUp()
+    {
+        if (level >= 10) return;
+
+        level++;
+        currentExperience -= maxExperience;
+        maxExperience += 100;
+
+        int bonusLife = Mathf.RoundToInt(0.2f * strength * 10);
+        maxLife += bonusLife;
+
+        maxWeight = CalculateMaxWeight(strength);
+        actionPoints = CalculateActionPoints(agility);
+        
+        if (level > 0)
+        {
+            availableSkillPoints += 20;
+        }
+
+        NotifyLifeChanged();
+    }
 
     public void SaveAttributes(CreationAttributes attributes)
     {
@@ -43,45 +95,45 @@ public class CharacterData : ScriptableObject
         charisma = attributes.charisma;
         agility = attributes.agility;
 
-        // Calcular e salvar os valores derivados
         maxLife = CalculateMaxLife(strength);
         actionPoints = CalculateActionPoints(agility);
         maxWeight = CalculateMaxWeight(strength);
+
+        NotifyLifeChanged();
     }
 
     public void SaveSkills(CreationSkills skills)
     {
-        arrombamento = skills.arrombamento;
-        atletismo = skills.atletismo;
-        ciencias = skills.ciencias;
-        diplomacia = skills.diplomacia;
-        eletrica = skills.eletrica;
-        furtividade = skills.furtividade;
-        geografia = skills.geografia;
-        idiomas = skills.idiomas;
-        intuicao = skills.intuicao;
-        medicina = skills.medicina;
-        mecanica = skills.mecanica;
-        negociacao = skills.negociacao;
-        religiao = skills.religiao;
-        roubo = skills.roubo;
+        arrombamento = Mathf.Min(100, skills.GetFinalArrombamento());
+        atletismo = Mathf.Min(100, skills.GetFinalAtletismo());
+        ciencias = Mathf.Min(100, skills.GetFinalCiencias());
+        diplomacia = Mathf.Min(100, skills.GetFinalDiplomacia());
+        eletrica = Mathf.Min(100, skills.GetFinalEletrica());
+        furtividade = Mathf.Min(100, skills.GetFinalFurtividade());
+        geografia = Mathf.Min(100, skills.GetFinalGeografia());
+        idiomas = Mathf.Min(100, skills.GetFinalIdiomas());
+        intuicao = Mathf.Min(100, skills.GetFinalIntuicao());
+        medicina = Mathf.Min(100, skills.GetFinalMedicina());
+        mecanica = Mathf.Min(100, skills.GetFinalMecanica());
+        negociacao = Mathf.Min(100, skills.GetFinalNegociacao());
+        religiao = Mathf.Min(100, skills.GetFinalReligiao());
+        roubo = Mathf.Min(100, skills.GetFinalRoubo());
+
+        NotifyChanges();
     }
 
     private int CalculateMaxLife(int strength)
     {
-        // 20% da Força x 20
         return Mathf.RoundToInt(0.2f * strength * 20);
     }
 
     private int CalculateMaxWeight(int strength)
     {
-        // (40 + Força) x 2
         return (40 + strength) * 2;
     }
 
     private int CalculateActionPoints(int agility)
     {
-        // Base 5 PA + 1 para cada ponto em Agilidade acima de 5
         return 5 + Mathf.Max(0, agility - 5);
     }
 }

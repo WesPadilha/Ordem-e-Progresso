@@ -6,31 +6,39 @@ public class LifeEnemy : MonoBehaviour
     public Slider slider; // Slider para exibir a vida
     public int maxLife = 10; // Vida máxima do inimigo
     private int currentLife; // Vida atual do inimigo
+    public int expAmount = 25; // Quantidade de XP que o inimigo dá ao morrer
 
     void Start()
     {
-        currentLife = maxLife; // Inicializa a vida com o valor máximo
-        slider.maxValue = maxLife; // Define o valor máximo do Slider
-        slider.value = currentLife; // Define o valor inicial do Slider
+        currentLife = maxLife;
+        slider.maxValue = maxLife;
+        slider.value = currentLife;
     }
 
-    void Update()
+    public void TakeDamage(int damage)
     {
-        slider.value = currentLife; // Atualiza o Slider com a vida atual
-    }
-
-    void OnMouseDown()
-    {
-        // Quando o inimigo for clicado, tira 1 ponto de vida
-        if (currentLife > 0)
-        {
-            currentLife -= 1; // Reduz 1 ponto de vida
-        }
+        currentLife -= damage;
+        slider.value = currentLife; // Atualiza o slider quando tomar dano
         
-        // Verifica se a vida do inimigo chegou a 0 (opcional)
         if (currentLife <= 0)
         {
-            Destroy(gameObject); // Destrói o inimigo quando a vida chegar a 0
+            Die();
         }
+    }
+
+    private void Die()
+    {
+        Debug.Log("Inimigo derrotado! XP concedido: " + expAmount);
+        if (ExperienceManager.Instance != null)
+        {
+            ExperienceManager.Instance.AddExperience(expAmount);
+        }
+        Destroy(gameObject);
+    }
+
+    // Para teste com clique do mouse
+    void OnMouseDown()
+    {
+        TakeDamage(1); // Agora usa o método TakeDamage em vez de manipular direto
     }
 }

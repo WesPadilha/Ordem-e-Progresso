@@ -1,13 +1,29 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 
 public class CreationAttributes : MonoBehaviour
 {
+    [System.Serializable]
+    public class AttributeDescriptions
+    {
+        [TextArea(3, 10)]
+        public string strength;
+        [TextArea(3, 10)]
+        public string intellection;
+        [TextArea(3, 10)]
+        public string luck;
+        [TextArea(3, 10)]
+        public string intelligence;
+        [TextArea(3, 10)]
+        public string charisma;
+        [TextArea(3, 10)]
+        public string agility;
+    }
+
     public CreationSkills skills;
     public CharacterData characterData;
+    public AttributeDescriptions descriptions;
     
     [Header("UI Elements")]
     public TMP_Text strengthText;
@@ -40,6 +56,14 @@ public class CreationAttributes : MonoBehaviour
     private const int MIN_ATTRIBUTE_VALUE = 1;
     private const int MAX_ATTRIBUTE_VALUE = 10;
 
+    // Armazena os valores anteriores para cálculo das habilidades
+    public int previousStrength;
+    public int previousIntellection;
+    public int previousLuck;
+    public int previousIntelligence;
+    public int previousCharisma;
+    public int previousAgility;
+
     public int strength;
     public int intellection;
     public int luck;
@@ -50,8 +74,21 @@ public class CreationAttributes : MonoBehaviour
     void Start()
     {
         InitializeDefaultAttributes();
+        // Armazena os valores iniciais como anteriores
+        previousStrength = strength;
+        previousIntellection = intellection;
+        previousLuck = luck;
+        previousIntelligence = intelligence;
+        previousCharisma = charisma;
+        previousAgility = agility;
+        
+        SetupButtonListeners();
+        SetupAttributeButtons();
+        UpdateUI();
+    }
 
-        // Button listeners
+    private void SetupButtonListeners()
+    {
         increaseStrengthBtn.onClick.AddListener(() => IncreaseAttribute("Strength"));
         decreaseStrengthBtn.onClick.AddListener(() => DecreaseAttribute("Strength"));
         increaseIntellectionBtn.onClick.AddListener(() => IncreaseAttribute("Intellection"));
@@ -64,8 +101,22 @@ public class CreationAttributes : MonoBehaviour
         decreaseCharismaBtn.onClick.AddListener(() => DecreaseAttribute("Charisma"));
         increaseAgilityBtn.onClick.AddListener(() => IncreaseAttribute("Agility"));
         decreaseAgilityBtn.onClick.AddListener(() => DecreaseAttribute("Agility"));
+    }
 
-        UpdateUI();
+    private void SetupAttributeButtons()
+    {
+        SetupButtonDescription(increaseStrengthBtn, descriptions.strength);
+        SetupButtonDescription(increaseIntellectionBtn, descriptions.intellection);
+        SetupButtonDescription(increaseLuckBtn, descriptions.luck);
+        SetupButtonDescription(increaseIntelligenceBtn, descriptions.intelligence);
+        SetupButtonDescription(increaseCharismaBtn, descriptions.charisma);
+        SetupButtonDescription(increaseAgilityBtn, descriptions.agility);
+    }
+
+    private void SetupButtonDescription(Button button, string description)
+    {
+        var desc = button.gameObject.AddComponent<ClickDescription>();
+        desc.description = description;
     }
 
     private void InitializeDefaultAttributes()
@@ -76,13 +127,14 @@ public class CreationAttributes : MonoBehaviour
         intelligence = 5;
         charisma = 5;
         agility = 5;
-
-        UpdateUI();
     }
 
     void IncreaseAttribute(string attribute)
     {
         if (availablePoints <= 0) return;
+
+        // Armazena os valores atuais antes de modificar
+        StorePreviousAttributes();
 
         switch (attribute)
         {
@@ -135,6 +187,9 @@ public class CreationAttributes : MonoBehaviour
 
     void DecreaseAttribute(string attribute)
     {
+        // Armazena os valores atuais antes de modificar
+        StorePreviousAttributes();
+
         switch (attribute)
         {
             case "Strength":
@@ -184,10 +239,22 @@ public class CreationAttributes : MonoBehaviour
         UpdateUI();
     }
 
+    private void StorePreviousAttributes()
+    {
+        previousStrength = strength;
+        previousIntellection = intellection;
+        previousLuck = luck;
+        previousIntelligence = intelligence;
+        previousCharisma = charisma;
+        previousAgility = agility;
+    }
+
     public void ResetAttributePoints()
     {
         availablePoints = 5;
         InitializeDefaultAttributes();
+        StorePreviousAttributes();
+        UpdateUI();
     }
 
     public int GetAvailablePoints()
@@ -197,7 +264,6 @@ public class CreationAttributes : MonoBehaviour
 
     public void UpdateUI()
     {
-        // Update attributes display
         strengthText.text = strength.ToString();
         intellectionText.text = intellection.ToString();
         luckText.text = luck.ToString();
@@ -205,7 +271,6 @@ public class CreationAttributes : MonoBehaviour
         charismaText.text = charisma.ToString();
         agilityText.text = agility.ToString();
 
-        // Update derived stats display
         lifeText.text = $"Vida: {CalculateMaxLife()}";
         weightText.text = $"Peso: {CalculateMaxWeight()}";
         actionPointsText.text = $"PA: {CalculateActionPoints()}";
@@ -220,19 +285,16 @@ public class CreationAttributes : MonoBehaviour
 
     private int CalculateMaxLife()
     {
-        // 20% da Força x 20
         return Mathf.RoundToInt(0.2f * strength * 20);
     }
 
     private int CalculateMaxWeight()
     {
-        // (40 + Força) x 2
         return (40 + strength) * 2;
     }
 
     private int CalculateActionPoints()
     {
-        // Base 5 PA + 1 for each point in Agility above 5
         return 5 + Mathf.Max(0, agility - 5);
     }
 
@@ -241,8 +303,10 @@ public class CreationAttributes : MonoBehaviour
         if (characterData != null)
         {
             characterData.SaveAttributes(this);
-            
-            // Atualiza a UI para refletir os valores salvos
+            if (skills != null)
+            {
+                characterData.SaveSkills(skills);
+            }
             UpdateUI();
         }
     }

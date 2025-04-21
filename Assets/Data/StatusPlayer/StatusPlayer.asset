@@ -2,7 +2,7 @@
 %TAG !u! tag:unity3d.com,2011:
 --- !u!114 &11400000
 MonoBehaviour:
-  m_ObjectHideFlags: 0
+  m_ObjectHideFlags: 32
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
@@ -12,28 +12,31 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 822e92d1704c24847a88747a81e3350b, type: 3}
   m_Name: StatusPlayer
   m_EditorClassIdentifier: 
-  strength: 35
+  strength: 0
   intellection: 0
   luck: 0
   intelligence: 0
   charisma: 0
   agility: 0
-  arrombamento: 22
-  atletismo: 2
-  ciencias: 2
-  diplomacia: 2
-  eletrica: 2
-  furtividade: 2
-  geografia: 2
-  idiomas: 2
-  intuicao: 2
-  medicina: 2
-  mecanica: 2
-  negociacao: 2
-  religiao: 2
-  roubo: 2
-  maxLife: 140
-  actionPoints: 5
+  arrombamento: 0
+  atletismo: 0
+  ciencias: 0
+  diplomacia: 0
+  eletrica: 0
+  furtividade: 0
+  geografia: 0
+  idiomas: 0
+  intuicao: 0
+  medicina: 0
+  mecanica: 0
+  negociacao: 0
+  religiao: 0
+  roubo: 0
+  maxLife: 0
+  actionPoints: 0
   defense: 0
+  currentExperience: 0
+  maxExperience: 100
   level: 0
-  maxWeight: 150
+  maxWeight: 0
+  availableSkillPoints: 0
