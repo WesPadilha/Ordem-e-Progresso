@@ -67,8 +67,12 @@ public abstract class UserInterface : MonoBehaviour
     }
     public void OnDragStart(GameObject obj)
     {
+        if (MouseData.isDragging) return; // Ignora se já estiver arrastando
+        
+        MouseData.isDragging = true; // Inicia o arrasto
         MouseData.tempItemBeingDragged = CreateTempItem(obj);
     }
+
     public GameObject CreateTempItem(GameObject obj)
     {
         GameObject tempItem = null;
@@ -86,23 +90,33 @@ public abstract class UserInterface : MonoBehaviour
     }
     public void OnDragEnd(GameObject obj)
     {
+        if (!MouseData.isDragging) return; // Só processa se estiver arrastando
+
+        MouseData.isDragging = false; // Finaliza o arrasto
         Destroy(MouseData.tempItemBeingDragged);
-        if(MouseData.interfaceMouseIsOver == null)
+        
+        if (MouseData.interfaceMouseIsOver == null)
         {
-            slotsOnInterface[obj].RemoveItem();
+            // Solicita confirmação de descarte
+            FindObjectOfType<DiscardConfirmationUI>().AskForConfirmation(slotsOnInterface[obj]);
             return;
         }
+
         if(MouseData.slotHoveredOver)
         {
             InventorySlot mouseHoverSlotData = MouseData.interfaceMouseIsOver.slotsOnInterface[MouseData.slotHoveredOver];
             inventory.SwapItems(slotsOnInterface[obj], mouseHoverSlotData);
         }
     }
+
     public void OnDrag(GameObject obj)
     {
-        if(MouseData.tempItemBeingDragged != null)
+        if (!MouseData.isDragging) return; // Ignora se não estiver arrastando
+
+        if (MouseData.tempItemBeingDragged != null)
             MouseData.tempItemBeingDragged.GetComponent<RectTransform>().position = Input.mousePosition;
     }
+
 }
 
 public static class MouseData
@@ -110,6 +124,7 @@ public static class MouseData
     public static UserInterface interfaceMouseIsOver;
     public static GameObject tempItemBeingDragged;
     public static GameObject slotHoveredOver;
+    public static bool isDragging = false; // Controle de arrasto
 }
 
 public static class ExtensionMethods

@@ -33,6 +33,7 @@ public class PlayerAttributesSkills : MonoBehaviour
     public TMP_Text maxLifeText;
     public TMP_Text actionPointsText;
     public TMP_Text defenseText;
+    public TMP_Text damageText;
     public TMP_Text levelText;
     public TMP_Text maxWeightText;
     
@@ -89,6 +90,7 @@ public class PlayerAttributesSkills : MonoBehaviour
         maxLifeText.text = $"Vida: {characterData.maxLife}";
         actionPointsText.text = $"PA: {characterData.actionPoints}";
         defenseText.text = $"Defesa: {characterData.defense}";
+        damageText.text = $"Dano: {characterData.damage}";
         levelText.text = $"Nível: {characterData.level}";
         maxWeightText.text = $"Peso: {characterData.maxWeight}kg";
         

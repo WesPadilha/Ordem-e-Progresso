@@ -12,16 +12,9 @@ public enum ItemType
 
 public enum AttributesItem
 {
-    GreatWeapons,
-    RangedWeapons,
-    SmallWeapons,
-    Conjuration,
-    Lockpicking,
-    Camouflage,
-    Defense,
-    Medicine,
-    Trade,
-    Oratory
+    damage,
+    defense,
+    Default
 }
 [CreateAssetMenu(fileName = "New Item", menuName = "Inventory System/Items/item")]
 public class ItemObject : ScriptableObject

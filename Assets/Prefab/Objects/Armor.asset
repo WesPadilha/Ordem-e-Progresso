@@ -12,12 +12,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 15193be7cccc46a4782427269ad8d0fc, type: 3}
   m_Name: Armor
   m_EditorClassIdentifier: 
-  uiDisplay: {fileID: 21300000, guid: 5e4c0cbe54076344a9beb7b78cc2449f, type: 3}
+  uiDisplay: {fileID: 21300000, guid: 1e5228a901085cb41b12dfde1b3c6cb3, type: 3}
   stackable: 0
   type: 0
   description: 
   data:
     Name: Armor
     Id: 2
-    buffs: []
+    buffs:
+    - attributesItem: 1
+      value: 0
+      min: 5
+      max: 10
   price: 5

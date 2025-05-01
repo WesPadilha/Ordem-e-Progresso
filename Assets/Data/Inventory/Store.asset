@@ -10,9 +10,9 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: eb46d2af88a24e64cbc577b6bcfe84b5, type: 3}
-  m_Name: Inventory Store
+  m_Name: Store
   m_EditorClassIdentifier: 
-  Money: 500
+  Money: 1000
   savePath: /inventory.Save
   database: {fileID: 11400000, guid: 9631f2e4bb7b6ec47a78c9c77e48e892, type: 2}
   type: 3
@@ -34,66 +34,58 @@ MonoBehaviour:
         Id: 2
         buffs:
         - attributesItem: 1
-          value: 6
-          min: 5
-          max: 10
-      amount: 1
-    - AllowedItems: 
-      item:
-        Name: Armor
-        Id: 2
-        buffs:
-        - attributesItem: 1
-          value: 9
-          min: 5
-          max: 10
-      amount: 1
-    - AllowedItems: 
-      item:
-        Name: Armor
-        Id: 2
-        buffs:
-        - attributesItem: 1
           value: 8
           min: 5
           max: 10
       amount: 1
     - AllowedItems: 
       item:
+        Name: Armor
+        Id: 2
+        buffs:
+        - attributesItem: 1
+          value: 5
+          min: 5
+          max: 10
+      amount: 1
+    - AllowedItems: 
+      item:
+        Name: Bolsa de sange
+        Id: 1
+        buffs: []
+      amount: 3
+    - AllowedItems: 
+      item:
+        Name: weapon
+        Id: 0
+        buffs:
+        - attributesItem: 0
+          value: 10
+          min: 6
+          max: 12
+      amount: 1
+    - AllowedItems: 
+      item:
+        Name: weapon
+        Id: 0
+        buffs:
+        - attributesItem: 0
+          value: 9
+          min: 6
+          max: 12
+      amount: 1
+    - AllowedItems: 
+      item:
         Name: 
         Id: -1
         buffs: []
       amount: 0
     - AllowedItems: 
       item:
-        Name: weapon
-        Id: 0
-        buffs:
-        - attributesItem: 0
-          value: 7
-          min: 6
-          max: 12
-      amount: 1
-    - AllowedItems: 
-      item:
-        Name: weapon
-        Id: 0
-        buffs:
-        - attributesItem: 0
-          value: 7
-          min: 6
-          max: 12
-      amount: 1
-    - AllowedItems: 
-      item:
-        Name: weapon
-        Id: 0
-        buffs:
-        - attributesItem: 0
-          value: 6
-          min: 6
-          max: 12
-      amount: 1
+        Name: 
+        Id: -1
+        buffs: []
+      amount: 0
     - AllowedItems: 
       item:
         Name: 
@@ -102,14 +94,10 @@ MonoBehaviour:
       amount: 0
     - AllowedItems: 
       item:
-        Name: weapon
-        Id: 0
-        buffs:
-        - attributesItem: 0
-          value: 6
-          min: 6
-          max: 12
-      amount: 1
+        Name: 
+        Id: -1
+        buffs: []
+      amount: 0
     - AllowedItems: 
       item:
         Name: 

@@ -35,6 +35,7 @@ public class CharacterData : ScriptableObject
     public int maxLife;
     public int actionPoints;
     public int defense;
+    public int damage;
     public int currentExperience;
     public int maxExperience = 100;
     public int level = 0;

@@ -35,6 +35,7 @@ MonoBehaviour:
   maxLife: 0
   actionPoints: 0
   defense: 0
+  damage: 0
   currentExperience: 0
   maxExperience: 100
   level: 0

@@ -10,18 +10,14 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 15193be7cccc46a4782427269ad8d0fc, type: 3}
-  m_Name: weapon
+  m_Name: Bolsa de sangue
   m_EditorClassIdentifier: 
-  uiDisplay: {fileID: 21300000, guid: a15bc3c4d923d824c96b601fd54c4043, type: 3}
-  stackable: 0
-  type: 2
+  uiDisplay: {fileID: 21300000, guid: fb1f3e2c63bff764983a604dcc2b8313, type: 3}
+  stackable: 1
+  type: 3
   description: 
   data:
-    Name: 
-    Id: 0
-    buffs:
-    - attributesItem: 0
-      value: 0
-      min: 6
-      max: 12
-  price: 10
+    Name: Bolsa de sange
+    Id: 1
+    buffs: []
+  price: 15

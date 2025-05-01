@@ -1,95 +1,80 @@
 using UnityEngine;
 using UnityEngine.UI;
-using UnityEngine.EventSystems;
 using TMPro;
 
-public class VendorSlot : MonoBehaviour, IPointerClickHandler, IBeginDragHandler, IDragHandler, IEndDragHandler
+[RequireComponent(typeof(Image))]
+public class VendorSlot : MonoBehaviour
 {
-    public Image icon; // Referência ao ícone do item
-    public TextMeshProUGUI priceText; // Referência ao texto do preço
-    [System.NonSerialized] public ItemObject item; // Item associado ao slot (não serializado)
+    [Header("UI Components")]
+    public Image icon;
+    public TextMeshProUGUI priceText;
+    public TextMeshProUGUI amountText;
+    
+    [System.NonSerialized] public InventorySlot inventorySlot;
 
-    private VendorUI vendorUI;
-
-    void Start()
+    private void Awake()
     {
-        vendorUI = GetComponentInParent<VendorUI>();
+        if (icon == null) icon = GetComponent<Image>();
+        if (priceText == null) priceText = transform.Find("PriceText")?.GetComponent<TextMeshProUGUI>();
+        if (amountText == null) amountText = transform.Find("AmountText")?.GetComponent<TextMeshProUGUI>();
     }
 
-    // Define o item no slot
-    public void SetItem(ItemObject newItem)
+    public void SetupSlot(InventorySlot slot)
     {
-        item = newItem;
-        if (item != null && item.uiDisplay != null)
+        if (this.inventorySlot != null)
         {
-            icon.sprite = item.uiDisplay; // Define o ícone do item
-            icon.enabled = true; // Ativa a exibição do ícone
-            priceText.text = "$" + item.price; // Exibe o preço do item
+            this.inventorySlot.OnAfterUpdate -= OnSlotUpdated;
+        }
+
+        this.inventorySlot = slot;
+        slot.OnAfterUpdate += OnSlotUpdated;
+        UpdateSlotUI();
+    }
+
+    private void OnSlotUpdated(InventorySlot slot)
+    {
+        UpdateSlotUI();
+    }
+
+    public void UpdateSlotUI()
+    {
+        if (inventorySlot == null || inventorySlot.ItemObject == null)
+        {
+            ClearSlot();
+            return;
+        }
+
+        icon.sprite = inventorySlot.ItemObject.uiDisplay;
+        icon.color = Color.white;
+        
+        bool isPlayerItem = inventorySlot.parent.inventory.type == InterfaceType.Inventory;
+        priceText.color = isPlayerItem ? Color.red : Color.green;
+        priceText.text = "$" + inventorySlot.ItemObject.price;
+
+        if (inventorySlot.ItemObject.stackable && inventorySlot.amount > 1)
+        {
+            amountText.text = inventorySlot.amount.ToString("n0");
+            amountText.gameObject.SetActive(true);
+        }
+        else
+        {
+            amountText.gameObject.SetActive(false);
         }
     }
 
-    // Limpa o slot e define a imagem padrão
-    public void ClearSlot(Sprite defaultIcon)
+    private void ClearSlot()
     {
-        item = null;
-        icon.sprite = defaultIcon; // Define a imagem padrão
-        icon.enabled = true; // Mantém a imagem visível
-        priceText.text = ""; // Remove o texto do preço
+        icon.sprite = null;
+        icon.color = new Color(1, 1, 1, 0);
+        priceText.text = "";
+        if (amountText != null) amountText.gameObject.SetActive(false);
     }
 
-    // Muda a cor do ícone
-    public void SetIconColor(Color color)
+    private void OnDestroy()
     {
-        icon.color = color;
-    }
-
-    // Quando o slot é clicado, tenta comprar o item
-    public void OnPointerClick(PointerEventData eventData)
-    {
-        if (item != null)
+        if (inventorySlot != null)
         {
-            vendorUI.BuyItemFromVendor(item); // Tenta comprar o item
+            inventorySlot.OnAfterUpdate -= OnSlotUpdated;
         }
-    }
-
-    // Inicia o arrasto do item
-    public void OnBeginDrag(PointerEventData eventData)
-    {
-        if (item != null)
-        {
-            MouseData.tempItemBeingDragged = CreateTempItem();
-        }
-    }
-
-    // Atualiza a posição do item arrastado
-    public void OnDrag(PointerEventData eventData)
-    {
-        if (MouseData.tempItemBeingDragged != null)
-        {
-            MouseData.tempItemBeingDragged.GetComponent<RectTransform>().position = Input.mousePosition;
-        }
-    }
-
-    // Finaliza o arrasto do item
-    public void OnEndDrag(PointerEventData eventData)
-    {
-        if (MouseData.tempItemBeingDragged != null)
-        {
-            Destroy(MouseData.tempItemBeingDragged);
-            vendorUI.OnDragEnd(gameObject);
-        }
-    }
-
-    // Cria um item temporário para ser arrastado
-    private GameObject CreateTempItem()
-    {
-        GameObject tempItem = new GameObject();
-        var rt = tempItem.AddComponent<RectTransform>();
-        rt.sizeDelta = new Vector2(80, 80);
-        tempItem.transform.SetParent(transform.parent);
-        var img = tempItem.AddComponent<Image>();
-        img.sprite = icon.sprite;
-        img.raycastTarget = false;
-        return tempItem;
     }
 }

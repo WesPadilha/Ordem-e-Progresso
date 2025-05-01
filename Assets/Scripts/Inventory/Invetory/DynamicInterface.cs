@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
+
 public class DynamicInterface : UserInterface
 {
     public GameObject inventoryPrefab;
@@ -10,6 +11,9 @@ public class DynamicInterface : UserInterface
     public int X_SPACE_BETWEEN_ITEM;
     public int NUMBER_OF_COLUMN;
     public int Y_SPACE_BETWEEN_ITEM;
+
+    public QuantitySelectorUI quantitySelector;
+    
     public override void CreateSlots()
     {
         slotsOnInterface = new Dictionary<GameObject, InventorySlot>();
@@ -18,17 +22,69 @@ public class DynamicInterface : UserInterface
             var obj = Instantiate(inventoryPrefab, Vector3.zero, Quaternion.identity, transform);
             obj.GetComponent<RectTransform>().localPosition = GetPosition(i);
 
-            AddEvent(obj, EventTriggerType.PointerEnter, delegate{ OnEnter(obj); });
-            AddEvent(obj, EventTriggerType.PointerExit, delegate{ OnExit(obj); });
-            AddEvent(obj, EventTriggerType.BeginDrag, delegate{ OnDragStart(obj); });
-            AddEvent(obj, EventTriggerType.EndDrag, delegate{ OnDragEnd(obj); });
-            AddEvent(obj, EventTriggerType.Drag, delegate{ OnDrag(obj); });
+            AddEvent(obj, EventTriggerType.PointerEnter, delegate { OnEnter(obj); });
+            AddEvent(obj, EventTriggerType.PointerExit, delegate { OnExit(obj); });
+            AddEvent(obj, EventTriggerType.BeginDrag, delegate { OnDragStart(obj); });
+            AddEvent(obj, EventTriggerType.EndDrag, delegate { OnDragEnd(obj); });
+            AddEvent(obj, EventTriggerType.Drag, delegate { OnDrag(obj); });
+            
             inventory.GetSlots[i].slotDisplay = obj;
             slotsOnInterface.Add(obj, inventory.GetSlots[i]);
         }
     }
+
     private Vector3 GetPosition(int i)
     {
-        return new Vector3(X_START + (X_SPACE_BETWEEN_ITEM * (i % NUMBER_OF_COLUMN)), Y_START +(-Y_SPACE_BETWEEN_ITEM * (i /NUMBER_OF_COLUMN)), 0f);
+        return new Vector3(X_START + (X_SPACE_BETWEEN_ITEM * (i % NUMBER_OF_COLUMN)), 
+                         Y_START + (-Y_SPACE_BETWEEN_ITEM * (i / NUMBER_OF_COLUMN)), 0f);
+    }
+
+    protected new void OnDragEnd(GameObject obj)
+    {
+        Destroy(MouseData.tempItemBeingDragged);
+        
+        if (MouseData.interfaceMouseIsOver == null)
+        {
+            FindObjectOfType<DiscardConfirmationUI>().AskForConfirmation(slotsOnInterface[obj]);
+            return;
+        }
+
+        if (MouseData.slotHoveredOver)
+        {
+            // Se estiver arrastando para a loja (StoreInterface)
+            if (MouseData.interfaceMouseIsOver is StoreInterface storeInterface)
+            {
+                InventorySlot playerSlot = slotsOnInterface[obj];
+                InventorySlot vendorSlot = storeInterface.slotsOnInterface[MouseData.slotHoveredOver];
+                
+                if (playerSlot.ItemObject.stackable && playerSlot.amount > 1)
+                {
+                    storeInterface.quantitySelector.ShowSelector(playerSlot, vendorSlot, false);
+                }
+                else
+                {
+                    storeInterface.TransferItem(playerSlot, vendorSlot, 1, false);
+                }
+            }
+            else
+            {
+                InventorySlot mouseHoverSlotData = MouseData.interfaceMouseIsOver.slotsOnInterface[MouseData.slotHoveredOver];
+                inventory.SwapItems(slotsOnInterface[obj], mouseHoverSlotData);
+            }
+        }
+    }
+
+    protected new void OnDragStart(GameObject obj)
+    {
+        if (!slotsOnInterface.TryGetValue(obj, out InventorySlot slot) || slot.ItemObject == null)
+            return;
+
+        MouseData.tempItemBeingDragged = CreateTempItem(obj);
+    }
+
+    protected new void OnDrag(GameObject obj)
+    {
+        if (MouseData.tempItemBeingDragged != null)
+            MouseData.tempItemBeingDragged.GetComponent<RectTransform>().position = Input.mousePosition;
     }
 }
