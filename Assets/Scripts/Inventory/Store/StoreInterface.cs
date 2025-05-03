@@ -56,26 +56,18 @@ public class StoreInterface : UserInterface
                          Y_START + (-Y_SPACE_BETWEEN_ITEM * (i / NUMBER_OF_COLUMN)), 0f);
     }
 
-    protected new void OnDragStart(GameObject obj)
-    {
-        if (!slotsOnInterface.TryGetValue(obj, out InventorySlot slot) || slot.ItemObject == null)
-            return;
-
-        MouseData.tempItemBeingDragged = CreateTempItem(obj);
-    }
-
-    protected new void OnDrag(GameObject obj)
-    {
-        if (MouseData.tempItemBeingDragged != null)
-            MouseData.tempItemBeingDragged.GetComponent<RectTransform>().position = Input.mousePosition;
-    }
-
     protected new void OnDragEnd(GameObject obj)
     {
-        Destroy(MouseData.tempItemBeingDragged);
+        if (!MouseData.isDragging || !Input.GetMouseButtonUp(0)) return;
+
+        if(MouseData.tempItemBeingDragged != null)
+        {
+            Destroy(MouseData.tempItemBeingDragged);
+        }
         
         if (MouseData.interfaceMouseIsOver == this)
         {
+            MouseData.Reset();
             return;
         }
 
@@ -107,70 +99,35 @@ public class StoreInterface : UserInterface
                 TransferItem(playerSlot, vendorSlot, 1, false);
             }
         }
-    }
-
-    protected new GameObject CreateTempItem(GameObject obj)
-    {
-        if (!slotsOnInterface.TryGetValue(obj, out InventorySlot slot) || slot.ItemObject == null)
-            return null;
-
-        GameObject tempItem = new GameObject();
-        var rt = tempItem.AddComponent<RectTransform>();
-        rt.sizeDelta = new Vector2(50, 50);
-        tempItem.transform.SetParent(transform.parent);
         
-        var img = tempItem.AddComponent<Image>();
-        img.sprite = slot.ItemObject.uiDisplay;
-        img.raycastTarget = false;
-        
-        return tempItem;
+        MouseData.Reset();
     }
 
     public void TransferItem(InventorySlot sourceSlot, InventorySlot targetSlot, int amount, bool isBuying)
     {
-        if (sourceSlot.ItemObject == null || sourceSlot.amount <= 0) 
-        {
-            Debug.LogWarning("Nenhum item para transferir!");
-            return;
-        }
+        if (sourceSlot.ItemObject == null || sourceSlot.amount <= 0) return;
         
         amount = Mathf.Min(amount, sourceSlot.amount);
         ItemObject itemObject = sourceSlot.ItemObject;
         int itemPrice = itemObject.price;
         int totalPrice = amount * itemPrice;
 
-        if (!targetSlot.CanPlaceInSlot(itemObject)) 
-        {
-            Debug.Log("Não pode colocar neste slot!");
-            return;
-        }
+        if (!targetSlot.CanPlaceInSlot(itemObject)) return;
 
         bool canStack = (targetSlot.ItemObject != null && 
                         targetSlot.ItemObject.data.Id == itemObject.data.Id && 
                         targetSlot.ItemObject.stackable) || 
                         targetSlot.ItemObject == null;
 
-        if (!canStack)
-        {
-            Debug.Log("Itens não são compatíveis para stack!");
-            return;
-        }
+        if (!canStack) return;
 
         if (isBuying)
         {
-            if (playerInventory.Money < totalPrice)
-            {
-                Debug.Log("Dinheiro insuficiente!");
-                return;
-            }
+            if (playerInventory.Money < totalPrice) return;
         }
         else
         {
-            if (inventory.Money < totalPrice)
-            {
-                Debug.Log("O vendedor não tem dinheiro suficiente!");
-                return;
-            }
+            if (inventory.Money < totalPrice) return;
         }
 
         int newSourceAmount = sourceSlot.amount - amount;

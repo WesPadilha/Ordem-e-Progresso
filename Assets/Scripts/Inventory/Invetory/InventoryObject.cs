@@ -75,12 +75,27 @@ public class InventoryObject : ScriptableObject
 
     public void SwapItems(InventorySlot item1, InventorySlot item2)
     {
-        if(item2.CanPlaceInSlot(item1.ItemObject) && item1.CanPlaceInSlot(item2.ItemObject))
+        // Se for o mesmo slot, não faz nada
+        if (item1 == item2)
+            return;
+
+        // Verifica se os itens são do mesmo tipo e stackable
+        if (item1.ItemObject != null && item2.ItemObject != null && 
+            item1.ItemObject == item2.ItemObject && 
+            item1.ItemObject.stackable)
         {
+            // Junta as quantidades no slot de destino
+            item2.AddAmount(item1.amount);
+            item1.RemoveItem();
+        }
+        else if (item2.CanPlaceInSlot(item1.ItemObject) && item1.CanPlaceInSlot(item2.ItemObject))
+        {
+            // Troca normal de itens
             InventorySlot temp = new InventorySlot(item2.item, item2.amount);
             item2.UpdateSlot(item1.item, item1.amount);
             item1.UpdateSlot(temp.item, temp.amount);
         }
+        // Se não puderem ser trocados, simplesmente não faz nada (cancela a operação)
     }
 
     // No script InventoryObject

@@ -1,7 +1,6 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using System.Collections.Generic;
 
 public class DynamicInterface : UserInterface
 {
@@ -41,17 +40,22 @@ public class DynamicInterface : UserInterface
 
     protected new void OnDragEnd(GameObject obj)
     {
-        Destroy(MouseData.tempItemBeingDragged);
+        if (!MouseData.isDragging || !Input.GetMouseButtonUp(0)) return;
+
+        if(MouseData.tempItemBeingDragged != null)
+        {
+            Destroy(MouseData.tempItemBeingDragged);
+        }
         
         if (MouseData.interfaceMouseIsOver == null)
         {
             FindObjectOfType<DiscardConfirmationUI>().AskForConfirmation(slotsOnInterface[obj]);
+            MouseData.Reset();
             return;
         }
 
         if (MouseData.slotHoveredOver)
         {
-            // Se estiver arrastando para a loja (StoreInterface)
             if (MouseData.interfaceMouseIsOver is StoreInterface storeInterface)
             {
                 InventorySlot playerSlot = slotsOnInterface[obj];
@@ -72,19 +76,7 @@ public class DynamicInterface : UserInterface
                 inventory.SwapItems(slotsOnInterface[obj], mouseHoverSlotData);
             }
         }
-    }
-
-    protected new void OnDragStart(GameObject obj)
-    {
-        if (!slotsOnInterface.TryGetValue(obj, out InventorySlot slot) || slot.ItemObject == null)
-            return;
-
-        MouseData.tempItemBeingDragged = CreateTempItem(obj);
-    }
-
-    protected new void OnDrag(GameObject obj)
-    {
-        if (MouseData.tempItemBeingDragged != null)
-            MouseData.tempItemBeingDragged.GetComponent<RectTransform>().position = Input.mousePosition;
+        
+        MouseData.Reset();
     }
 }

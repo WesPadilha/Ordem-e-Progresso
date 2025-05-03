@@ -48,7 +48,6 @@ public class VendorSlot : MonoBehaviour
         icon.color = Color.white;
         
         bool isPlayerItem = inventorySlot.parent.inventory.type == InterfaceType.Inventory;
-        priceText.color = isPlayerItem ? Color.red : Color.green;
         priceText.text = "$" + inventorySlot.ItemObject.price;
 
         if (inventorySlot.ItemObject.stackable && inventorySlot.amount > 1)
