@@ -11,6 +11,12 @@ public class ScreenController : MonoBehaviour
     private bool isConversationActive = false; // Acompanhar se a conversa está ativa
     private bool isStoreOpen = false; // Estado da loja
     private bool isStorageOpen = false; // Estado da loja
+    private ItemContextMenu itemContextMenu;
+
+    private void Awake()
+    {
+        itemContextMenu = FindObjectOfType<ItemContextMenu>();
+    }
 
     public bool IsAnyUIActive()
     {
@@ -65,10 +71,17 @@ public class ScreenController : MonoBehaviour
 
     public void ToggleInventory()
     {
-        if (Pause.GameIsPaused || isStoreOpen || isStorageOpen) return; // Bloqueia se o jogo estiver pausado, loja ou storage abertas
+        if (Pause.GameIsPaused || isStoreOpen || isStorageOpen) return;
 
         bool isActive = Inventory.gameObject.activeSelf;
         Inventory.gameObject.SetActive(!isActive);
+        
+        // Fecha o menu de contexto ao fechar o inventário
+        if (!isActive && itemContextMenu != null)
+        {
+            itemContextMenu.CloseContextMenu();
+        }
+        
         if (!isActive)
         {
             Daily.gameObject.SetActive(false);
@@ -111,6 +124,12 @@ public class ScreenController : MonoBehaviour
         Inventory.gameObject.SetActive(false);
         Daily.gameObject.SetActive(false);
         Map.gameObject.SetActive(false);
+
+        // Fecha o menu de contexto se estiver aberto
+        if (itemContextMenu != null)
+        {
+            itemContextMenu.CloseContextMenu();
+        }
 
         if (isStoreOpen)
         {

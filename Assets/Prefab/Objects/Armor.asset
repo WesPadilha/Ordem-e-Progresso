@@ -25,3 +25,4 @@ MonoBehaviour:
       min: 5
       max: 10
   price: 5
+  weight: 50

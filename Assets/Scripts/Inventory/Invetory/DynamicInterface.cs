@@ -1,5 +1,7 @@
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.UI;
+using TMPro;
 using System.Collections.Generic;
 
 public class DynamicInterface : UserInterface
@@ -26,6 +28,7 @@ public class DynamicInterface : UserInterface
             AddEvent(obj, EventTriggerType.BeginDrag, delegate { OnDragStart(obj); });
             AddEvent(obj, EventTriggerType.EndDrag, delegate { OnDragEnd(obj); });
             AddEvent(obj, EventTriggerType.Drag, delegate { OnDrag(obj); });
+            AddRightClickEvent(obj);
             
             inventory.GetSlots[i].slotDisplay = obj;
             slotsOnInterface.Add(obj, inventory.GetSlots[i]);
@@ -36,6 +39,41 @@ public class DynamicInterface : UserInterface
     {
         return new Vector3(X_START + (X_SPACE_BETWEEN_ITEM * (i % NUMBER_OF_COLUMN)), 
                          Y_START + (-Y_SPACE_BETWEEN_ITEM * (i / NUMBER_OF_COLUMN)), 0f);
+    }
+
+    protected void AddRightClickEvent(GameObject obj)
+    {
+        EventTrigger trigger = obj.GetComponent<EventTrigger>();
+        if (trigger == null)
+        {
+            trigger = obj.AddComponent<EventTrigger>();
+        }
+        
+        var rightClickEntry = new EventTrigger.Entry();
+        rightClickEntry.eventID = EventTriggerType.PointerClick;
+        rightClickEntry.callback.AddListener((data) => {
+            var pointerData = (PointerEventData)data;
+            if (pointerData.button == PointerEventData.InputButton.Right)
+            {
+                OnRightClick(obj);
+            }
+        });
+        trigger.triggers.Add(rightClickEntry);
+    }
+
+    private void OnRightClick(GameObject obj)
+    {
+        if (slotsOnInterface.TryGetValue(obj, out InventorySlot slot))
+        {
+            if (slot.ItemObject != null)
+            {
+                ItemContextMenu contextMenu = FindObjectOfType<ItemContextMenu>();
+                if (contextMenu != null)
+                {
+                    contextMenu.ShowContextMenu(slot);
+                }
+            }
+        }
     }
 
     protected new void OnDragEnd(GameObject obj)
@@ -75,6 +113,12 @@ public class DynamicInterface : UserInterface
                 InventorySlot mouseHoverSlotData = MouseData.interfaceMouseIsOver.slotsOnInterface[MouseData.slotHoveredOver];
                 inventory.SwapItems(slotsOnInterface[obj], mouseHoverSlotData);
             }
+        }
+
+        InventoryWeightManager weightManager = FindObjectOfType<InventoryWeightManager>();
+        if (weightManager != null)
+        {
+            weightManager.CalculateTotalWeight();
         }
         
         MouseData.Reset();

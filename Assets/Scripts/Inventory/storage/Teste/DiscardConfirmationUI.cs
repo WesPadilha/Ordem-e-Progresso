@@ -23,7 +23,11 @@ public class DiscardConfirmationUI : MonoBehaviour
 
     private void Update()
     {
-        if (quantitySlider.gameObject.activeSelf && slotToDiscard != null && slotToDiscard.ItemObject.stackable)
+        if (quantityText == null) return; // Add this safety check
+
+        if (quantitySlider != null && quantitySlider.gameObject.activeSelf && 
+            slotToDiscard != null && slotToDiscard.ItemObject != null && 
+            slotToDiscard.ItemObject.stackable)
         {
             quantityText.text = "Quantidade: " + Mathf.RoundToInt(quantitySlider.value).ToString();
         }
@@ -35,23 +39,30 @@ public class DiscardConfirmationUI : MonoBehaviour
 
     public void AskForConfirmation(InventorySlot slot)
     {
-        slotToDiscard = slot;
+        if (slot == null || slot.ItemObject == null) return;
         
+        slotToDiscard = slot;
         ItemObject itemObj = slot.ItemObject;
 
-        if (itemObj != null && itemObj.stackable && slot.amount > 1)
+        if (quantitySlider != null)
         {
-            quantitySlider.gameObject.SetActive(true);
-            quantitySlider.minValue = 1;
-            quantitySlider.maxValue = slot.amount;
-            quantitySlider.value = 1;
-        }
-        else
-        {
-            quantitySlider.gameObject.SetActive(false);
+            if (itemObj.stackable && slot.amount > 1)
+            {
+                quantitySlider.gameObject.SetActive(true);
+                quantitySlider.minValue = 1;
+                quantitySlider.maxValue = slot.amount;
+                quantitySlider.value = 1;
+            }
+            else
+            {
+                quantitySlider.gameObject.SetActive(false);
+            }
         }
 
-        confirmationPanel.SetActive(true);
+        if (confirmationPanel != null)
+        {
+            confirmationPanel.SetActive(true);
+        }
     }
 
     private void ConfirmDiscard()
@@ -63,17 +74,23 @@ public class DiscardConfirmationUI : MonoBehaviour
             amountToDiscard = Mathf.RoundToInt(quantitySlider.value);
         }
 
+        ItemObject itemObject = slotToDiscard.ItemObject;
+        InventoryObject inventory = slotToDiscard.parent.inventory;
+
         if (slotToDiscard.amount <= amountToDiscard)
         {
             slotToDiscard.RemoveItem();
+            inventory.NotifyItemRemoved(itemObject, amountToDiscard);
         }
         else
         {
             slotToDiscard.UpdateSlot(slotToDiscard.item, slotToDiscard.amount - amountToDiscard);
+            inventory.NotifyItemRemoved(itemObject, amountToDiscard);
         }
 
         confirmationPanel.SetActive(false);
     }
+
 
     private void CancelDiscard()
     {

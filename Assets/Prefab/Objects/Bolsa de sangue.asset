@@ -15,9 +15,14 @@ MonoBehaviour:
   uiDisplay: {fileID: 21300000, guid: fb1f3e2c63bff764983a604dcc2b8313, type: 3}
   stackable: 1
   type: 3
-  description: 
+  description: Ao utilizar, cura 10 de vida total do personagem
   data:
     Name: Bolsa de sange
     Id: 1
-    buffs: []
+    buffs:
+    - attributesItem: 2
+      value: 10
+      min: 10
+      max: 10
   price: 15
+  weight: 1

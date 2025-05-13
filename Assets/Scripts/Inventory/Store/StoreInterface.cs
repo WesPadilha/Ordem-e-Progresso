@@ -160,6 +160,12 @@ public class StoreInterface : UserInterface
             playerInventory.Money += totalPrice;
             inventory.Money -= totalPrice;
         }
+
+        InventoryWeightManager weightManager = FindObjectOfType<InventoryWeightManager>();
+        if (weightManager != null)
+        {
+            weightManager.CalculateTotalWeight();
+        }
         
         playerStatus.UpdateMoneyDisplay();
         vendorUI.UpdateVendorMoneyDisplay();

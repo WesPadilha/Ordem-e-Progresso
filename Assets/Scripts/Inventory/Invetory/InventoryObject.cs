@@ -23,18 +23,53 @@ public class InventoryObject : ScriptableObject
     public Inventory Container;
     public InventorySlot[] GetSlots { get { return Container.Slots; } }
 
+    public delegate void ItemEvent(ItemObject item, int amount);
+    public event ItemEvent OnItemAdded;
+    public event ItemEvent OnItemRemoved;
+
     public bool AddItem(Item _item, int _amount)
     {
+        bool added = false;
+        
         if(EmptySlotCount <= 0)
             return false;
+            
         InventorySlot slot = FindItemOnInventory(_item);
         if(!database.ItemObjects[_item.Id].stackable || slot == null)
         {
             SetEmptySlot(_item, _amount);
-            return true;
+            added = true;
         }
-        slot.AddAmount(_amount);
-        return true;
+        else
+        {
+            slot.AddAmount(_amount);
+            added = true;
+        }
+
+        if(added)
+        {
+            OnItemAdded?.Invoke(database.ItemObjects[_item.Id], _amount);
+        }
+        return added;
+    }
+
+    public void NotifyItemRemoved(ItemObject item, int amount)
+    {
+        OnItemRemoved?.Invoke(item, amount);
+    }
+
+
+    // Em InventoryObject.cs, adicione este método:
+    public InventorySlot FindEmptySlot()
+    {
+        for (int i = 0; i < GetSlots.Length; i++)
+        {
+            if (GetSlots[i].item.Id <= -1)
+            {
+                return GetSlots[i];
+            }
+        }
+        return null;
     }
     public int EmptySlotCount
     {
@@ -103,14 +138,14 @@ public class InventoryObject : ScriptableObject
     {
         if (itemObject == null) return;
 
-        // Converte ItemObject para Item
         Item item = new Item(itemObject);
-
         for (int i = 0; i < GetSlots.Length; i++)
         {
             if (GetSlots[i].item.Id == item.Id)
             {
-                GetSlots[i].UpdateSlot(null, 0); // Remove o item do slot
+                int amount = GetSlots[i].amount;
+                GetSlots[i].UpdateSlot(null, 0);
+                OnItemRemoved?.Invoke(itemObject, amount);
             }
         }
     }

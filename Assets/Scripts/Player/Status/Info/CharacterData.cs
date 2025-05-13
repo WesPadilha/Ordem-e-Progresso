@@ -32,6 +32,7 @@ public class CharacterData : ScriptableObject
     public int roubo;
 
     [Header("Status Jogador")]
+    public int currentLife;
     public int maxLife;
     public int actionPoints;
     public int defense;
@@ -39,10 +40,21 @@ public class CharacterData : ScriptableObject
     public int currentExperience;
     public int maxExperience = 100;
     public int level = 0;
+    public int currentWeight;
     public int maxWeight;
 
     [Header("Progressão")]
     public int availableSkillPoints = 0;
+
+    public void Initialize()
+    {
+        maxLife = CalculateMaxLife(strength);
+        currentLife = maxLife;
+        maxWeight = CalculateMaxWeight(strength);
+        currentWeight = 0; // Inicia com 0 de peso
+        actionPoints = CalculateActionPoints(agility);
+        NotifyLifeChanged();
+    }
 
     public void NotifyChanges()
     {
@@ -65,16 +77,38 @@ public class CharacterData : ScriptableObject
         NotifyChanges();
     }
 
+    public void SetCurrentLife(int newLife)
+    {
+        currentLife = Mathf.Clamp(newLife, 0, maxLife);
+        NotifyLifeChanged();
+    }
+
     private void LevelUp()
     {
         if (level >= 10) return;
 
+        // Verifica se a vida está cheia antes do level up
+        bool wasFullLife = currentLife == maxLife;
+        
         level++;
         currentExperience -= maxExperience;
         maxExperience += 100;
 
         int bonusLife = Mathf.RoundToInt(0.2f * strength * 10);
+        int previousMaxLife = maxLife;
         maxLife += bonusLife;
+
+        // Se a vida estava cheia antes do level up, atualiza currentLife para o novo maxLife
+        if (wasFullLife)
+        {
+            currentLife = maxLife;
+        }
+        // Caso contrário, mantém a mesma porcentagem de vida
+        else
+        {
+            float lifePercentage = (float)currentLife / previousMaxLife;
+            currentLife = Mathf.RoundToInt(maxLife * lifePercentage);
+        }
 
         maxWeight = CalculateMaxWeight(strength);
         actionPoints = CalculateActionPoints(agility);
@@ -136,5 +170,13 @@ public class CharacterData : ScriptableObject
     private int CalculateActionPoints(int agility)
     {
         return 5 + Mathf.Max(0, agility - 5);
+    }
+
+    public void UpdateCurrentWeight()
+    {
+        currentWeight = 0;
+        // Você precisará acessar o inventário do jogador aqui
+        // Isso será implementado no próximo passo
+        NotifyChanges();
     }
 }

@@ -92,7 +92,7 @@ public class PlayerAttributesSkills : MonoBehaviour
         defenseText.text = $"Defesa: {characterData.defense}";
         damageText.text = $"Dano: {characterData.damage}";
         levelText.text = $"Nível: {characterData.level}";
-        maxWeightText.text = $"Peso: {characterData.maxWeight}kg";
+        maxWeightText.text = $"Peso: {characterData.currentWeight}/{characterData.maxWeight}kg";
         
         availablePointsText.text = $"Pontos: {characterData.availableSkillPoints}";
     }

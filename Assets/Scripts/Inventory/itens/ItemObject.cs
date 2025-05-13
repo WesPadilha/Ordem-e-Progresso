@@ -7,6 +7,7 @@ public enum ItemType
     Armor,
     Accessories,
     Weapon,
+    consumables,
     Default
 }
 
@@ -14,6 +15,7 @@ public enum AttributesItem
 {
     damage,
     defense,
+    heal,
     Default
 }
 [CreateAssetMenu(fileName = "New Item", menuName = "Inventory System/Items/item")]
@@ -26,6 +28,7 @@ public class ItemObject : ScriptableObject
     public string description;
     public Item data = new Item();   
     public int price; 
+    public int weight = 1; 
 
     public Item CreateItem()
     {
