@@ -6,6 +6,7 @@ public class PlayerStatus : MonoBehaviour
     public InventoryObject playerInventory;
     public TextMeshProUGUI moneyText;
     public GameObject talk;
+    public CharacterData characterData; // Adicione esta linha
 
     private bool isMouseOverNPC = false;
 

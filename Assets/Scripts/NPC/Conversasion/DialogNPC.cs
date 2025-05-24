@@ -15,6 +15,7 @@ public class DialogNPC : MonoBehaviour
     public float movementSpeed = 5f;
     public NPCOrientationController npcOrientationController;
     public GameObject hud;
+    public CharacterData characterData; // Referência ao CharacterData
 
     private bool isConversationActive = false;
     private Vector3 conversationCameraPosition;
@@ -55,6 +56,9 @@ public class DialogNPC : MonoBehaviour
 
         screenController.StartConversation();
         ConversationManager.Instance.StartConversation(myConversation);
+        
+        // Define todas as habilidades no ConversationManager
+        SetAllSkillsInConversationManager();
 
         isConversationActive = true;
         StartCoroutine(MoveCameraToFixedPosition());
@@ -67,6 +71,35 @@ public class DialogNPC : MonoBehaviour
         }
 
         hud.SetActive(!hud.activeSelf);
+    }
+
+    private void SetAllSkillsInConversationManager()
+    {
+        if (characterData == null) return;
+
+        // Atributos
+        ConversationManager.Instance.SetInt("Forca", characterData.strength);
+        ConversationManager.Instance.SetInt("Intelecto", characterData.intellection);
+        ConversationManager.Instance.SetInt("Sorte", characterData.luck);
+        ConversationManager.Instance.SetInt("Inteligencia", characterData.intelligence);
+        ConversationManager.Instance.SetInt("Carisma", characterData.charisma);
+        ConversationManager.Instance.SetInt("Agilidade", characterData.agility);
+
+        // Habilidades
+        ConversationManager.Instance.SetInt("Arrombamento", characterData.arrombamento);
+        ConversationManager.Instance.SetInt("Atletismo", characterData.atletismo);
+        ConversationManager.Instance.SetInt("Ciencias", characterData.ciencias);
+        ConversationManager.Instance.SetInt("Diplomacia", characterData.diplomacia);
+        ConversationManager.Instance.SetInt("Eletrica", characterData.eletrica);
+        ConversationManager.Instance.SetInt("Furtividade", characterData.furtividade);
+        ConversationManager.Instance.SetInt("Geografia", characterData.geografia);
+        ConversationManager.Instance.SetInt("Idiomas", characterData.idiomas);
+        ConversationManager.Instance.SetInt("Intuicao", characterData.intuicao);
+        ConversationManager.Instance.SetInt("Medicina", characterData.medicina);
+        ConversationManager.Instance.SetInt("Mecanica", characterData.mecanica);
+        ConversationManager.Instance.SetInt("Negociacao", characterData.negociacao);
+        ConversationManager.Instance.SetInt("Religiao", characterData.religiao);
+        ConversationManager.Instance.SetInt("Roubo", characterData.roubo);
     }
 
     private IEnumerator MoveCameraToFixedPosition()

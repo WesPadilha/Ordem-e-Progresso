@@ -110,7 +110,16 @@ public class StoreInterface : UserInterface
         amount = Mathf.Min(amount, sourceSlot.amount);
         ItemObject itemObject = sourceSlot.ItemObject;
         int itemPrice = itemObject.price;
-        int totalPrice = amount * itemPrice;
+        
+        // Aplica o bônus de negociação
+        float priceMultiplier = isBuying ? 
+            playerStatus.characterData.GetNegotiationBuyDiscount() : 
+            playerStatus.characterData.GetNegotiationSellBonus();
+        
+        int totalPrice = Mathf.RoundToInt(amount * itemPrice * priceMultiplier);
+        
+        // Garante que o preço mínimo seja 1
+        totalPrice = Mathf.Max(1, totalPrice);
 
         if (!targetSlot.CanPlaceInSlot(itemObject)) return;
 

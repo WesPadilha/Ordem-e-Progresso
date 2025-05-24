@@ -20,4 +20,5 @@ MonoBehaviour:
     Name: 
     Id: 3
     buffs: []
-  price: 1
+  price: 2
+  weight: 1

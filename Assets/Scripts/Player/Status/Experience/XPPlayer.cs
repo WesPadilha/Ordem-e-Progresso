@@ -6,7 +6,7 @@ public class XPPlayer : MonoBehaviour
 {
     [SerializeField] private Slider xpSlider;
     [SerializeField] private TMP_Text xpText;
-    [SerializeField] private CharacterData characterData;
+    [SerializeField] public CharacterData characterData;
 
     private void OnEnable()
     {

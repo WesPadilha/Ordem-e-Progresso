@@ -12,13 +12,17 @@ public class Storage : MonoBehaviour
     public float fixedDistance = 12f;
     public float movementSpeed = 5f;
     public GameObject hud;
+    public CharacterData characterData;
+    public int requiredArrombamento = 50;
+
+    public ViewStorage viewStorage; // Referência ao ViewStorage no mesmo GameObject
 
     private Vector3 originalCameraPosition;
     private Quaternion originalCameraRotation;
+    private bool hasGivenXP = false;
 
     private void OnMouseOver()
     {
-        // Verifica se o jogador está no range e o estado do jogo
         if (Pause.GameIsPaused || Vector3.Distance(player.position, transform.position) > interactionDistance || screenController.IsAnyUIActive())
             return;
 
@@ -30,21 +34,38 @@ public class Storage : MonoBehaviour
 
     public void OpenStorage()
     {
-        storageUI.SetActive(true); // Abre a UI de storage
-        screenController.SetStorageState(true); // Marca o estado do storage
+        if (characterData.arrombamento < requiredArrombamento)
+        {
+            Debug.Log("Você precisa de pelo menos " + requiredArrombamento + " de arrombamento para abrir este armazenamento.");
 
-        // Armazena a posição e rotação original da câmera
+            if (viewStorage != null)
+            {
+                viewStorage.ShowInsufficientMessage(requiredArrombamento);
+            }
+
+            return;
+        }
+
+        if (!hasGivenXP && requiredArrombamento > 0)
+        {
+            ExperienceManager.Instance.AddExperience(25);
+            hasGivenXP = true;
+        }
+
+        storageUI.SetActive(true);
+        screenController.SetStorageState(true);
+
         originalCameraPosition = storageCamera.transform.position;
         originalCameraRotation = storageCamera.transform.rotation;
 
-        StartCoroutine(MoveCameraToStoragePosition()); // Move a câmera para a posição do Storage
+        StartCoroutine(MoveCameraToStoragePosition());
         hud.SetActive(false);
     }
 
     public void CloseStorage()
     {
-        storageUI.SetActive(false); // Fecha a UI de storage
-        screenController.SetStorageState(false); // Reseta o estado do storage
+        storageUI.SetActive(false);
+        screenController.SetStorageState(false);
         hud.SetActive(true);
     }
 
@@ -53,7 +74,7 @@ public class Storage : MonoBehaviour
         float currentAngleY = storageCamera.transform.rotation.eulerAngles.y;
         Vector3 direction = new Vector3(Mathf.Sin(currentAngleY * Mathf.Deg2Rad), 0, Mathf.Cos(currentAngleY * Mathf.Deg2Rad));
         Vector3 targetPosition = storage.position - direction * fixedDistance;
-        targetPosition.y = storageCamera.transform.position.y; // Mantém a altura da câmera
+        targetPosition.y = storageCamera.transform.position.y;
 
         while (Vector3.Distance(storageCamera.transform.position, targetPosition) > 0.1f)
         {
@@ -64,7 +85,6 @@ public class Storage : MonoBehaviour
 
     void Update()
     {
-        // Fecha o storage se pressionar 'Esc'
         if (Input.GetKeyDown(KeyCode.Escape) && storageUI.activeSelf)
         {
             CloseStorage();

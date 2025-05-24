@@ -14,13 +14,27 @@ public class VendorUI : MonoBehaviour
     public PlayerStatus playerStatus;
     public TextMeshProUGUI vendorMoneyText;
 
+    private bool isInitialized = false;
+
     private void Start()
     {
-        InitializeStore();
+        if (!isInitialized)
+        {
+            InitializeStore();
+        }
     }
 
     private void InitializeStore()
     {
+        if (isInitialized) return;
+
+        // Null check critical components
+        if (storeInterface == null || playerInterface == null || playerStatus == null)
+        {
+            Debug.LogError("VendorUI: Critical components are not assigned!");
+            return;
+        }
+
         storeInterface.playerInventory = playerInterface.inventory;
         storeInterface.playerStatus = playerStatus;
         storeInterface.vendorUI = this;
@@ -28,7 +42,11 @@ public class VendorUI : MonoBehaviour
         storeInterface.inventory.Money = initialVendorMoney;
         UpdateVendorMoneyDisplay();
         
-        storeInterface.inventory.Clear();
+        // Clear inventory safely
+        if (storeInterface.inventory != null)
+        {
+            storeInterface.inventory.Clear();
+        }
         
         Dictionary<ItemObject, int> itemCounts = new Dictionary<ItemObject, int>();
         
@@ -64,6 +82,8 @@ public class VendorUI : MonoBehaviour
                 }
             }
         }
+
+        isInitialized = true;
     }
 
     public void UpdateVendorMoneyDisplay()

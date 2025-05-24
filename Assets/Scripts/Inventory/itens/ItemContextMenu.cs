@@ -95,28 +95,79 @@ public class ItemContextMenu : MonoBehaviour
         isSplitting = false;
     }
 
-    // No script ItemContextMenu, adicione este método:
     private void OnUseClicked()
     {
         if (currentSlot == null || currentSlot.ItemObject == null) 
             return;
 
-        // Verifica se é um item consumível
         if (currentSlot.ItemObject.type == ItemType.consumables)
         {
             UseConsumableItem();
         }
+        else if (currentSlot.ItemObject.type == ItemType.Weapon || 
+                currentSlot.ItemObject.type == ItemType.Armor)
+        {
+            EquipItem();
+        }
         else
         {
-            Debug.Log($"Item não é consumível: {currentSlot.ItemObject.name}");
+            Debug.Log($"Este item não pode ser usado diretamente: {currentSlot.ItemObject.name}");
         }
         
         CloseAllPanels();
     }
 
+    private void EquipItem()
+    {
+        // Encontra a interface de equipamento (assumindo que você tem apenas uma)
+        StaticInterface equipmentUI = FindObjectOfType<StaticInterface>();
+        if (equipmentUI == null)
+        {
+            Debug.LogWarning("Interface de equipamento não encontrada!");
+            return;
+        }
+
+        // Determina o tipo de slot necessário
+        ItemType itemType = currentSlot.ItemObject.type;
+        InventorySlot targetSlot = FindAppropriateEquipmentSlot(equipmentUI, itemType);
+
+        if (targetSlot == null)
+        {
+            Debug.LogWarning($"Nenhum slot de equipamento adequado encontrado para {itemType}");
+            return;
+        }
+
+        // Move o item para o slot de equipamento
+        if (targetSlot.ItemObject == null) // Slot vazio
+        {
+            targetSlot.UpdateSlot(currentSlot.item, currentSlot.amount);
+            currentSlot.RemoveItem();
+        }
+        else // Slot ocupado - faz a troca
+        {
+            Item tempItem = targetSlot.item;
+            int tempAmount = targetSlot.amount;
+            
+            targetSlot.UpdateSlot(currentSlot.item, currentSlot.amount);
+            currentSlot.UpdateSlot(tempItem, tempAmount);
+        }
+    }
+
+    private InventorySlot FindAppropriateEquipmentSlot(StaticInterface equipmentUI, ItemType itemType)
+    {
+        foreach (var slot in equipmentUI.slotsOnInterface.Values)
+        {
+            // Verifica se o slot permite este tipo de item
+            if (System.Array.Exists(slot.AllowedItems, allowed => allowed == itemType))
+            {
+                return slot;
+            }
+        }
+        return null;
+    }
+
     private void UseConsumableItem()
     {
-        // Obtém o componente PlayerLife (assumindo que está no mesmo GameObject ou você pode usar FindObjectOfType)
         PlayerLife playerLife = FindObjectOfType<PlayerLife>();
         if (playerLife == null)
         {
@@ -124,24 +175,35 @@ public class ItemContextMenu : MonoBehaviour
             return;
         }
 
-        // Aplica todos os buffs do item
+        // Guarda uma referência ao item antes de remover
+        ItemObject itemObject = currentSlot.ItemObject;
+        int amountBefore = currentSlot.amount;
+
+        // Aplica os buffs
         foreach (var buff in currentSlot.item.buffs)
         {
             if (buff.attributesItem == AttributesItem.heal)
             {
                 playerLife.Heal(buff.value);
-                Debug.Log($"Curando {buff.value} pontos de vida");
             }
-            // Você pode adicionar outros tipos de buffs aqui se necessário
         }
 
-        // Remove uma unidade do item do inventário
+        // Remove uma unidade do item
         currentSlot.AddAmount(-1);
 
-        // Se a quantidade chegar a zero, remove o item
-        if (currentSlot.amount <= 0)
+        // Notifica a mudança de peso
+        if (currentSlot.parent != null && currentSlot.parent.inventory != null)
         {
-            currentSlot.RemoveItem();
+            // Se o item foi completamente removido
+            if (currentSlot.amount <= 0)
+            {
+                currentSlot.parent.inventory.NotifyItemRemoved(itemObject, 1);
+                currentSlot.RemoveItem();
+            }
+            else if (amountBefore != currentSlot.amount) // Se a quantidade mudou
+            {
+                currentSlot.parent.inventory.NotifyItemRemoved(itemObject, 1);
+            }
         }
     }
 

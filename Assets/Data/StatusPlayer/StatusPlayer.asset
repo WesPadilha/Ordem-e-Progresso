@@ -12,34 +12,34 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 822e92d1704c24847a88747a81e3350b, type: 3}
   m_Name: StatusPlayer
   m_EditorClassIdentifier: 
-  strength: 4
-  intellection: 4
-  luck: 6
-  intelligence: 6
-  charisma: 9
-  agility: 6
-  arrombamento: 4
-  atletismo: 5
-  ciencias: 10
-  diplomacia: 31
-  eletrica: 9
-  furtividade: 5
-  geografia: 4
-  idiomas: 6
-  intuicao: 4
-  medicina: 5
-  mecanica: 5
-  negociacao: 6
-  religiao: 6
-  roubo: 5
-  currentLife: 12
-  maxLife: 32
-  actionPoints: 6
+  strength: 0
+  intellection: 0
+  luck: 0
+  intelligence: 0
+  charisma: 0
+  agility: 0
+  arrombamento: 0
+  atletismo: 0
+  ciencias: 0
+  diplomacia: 0
+  eletrica: 0
+  furtividade: 0
+  geografia: 0
+  idiomas: 0
+  intuicao: 0
+  medicina: 0
+  mecanica: 0
+  negociacao: 0
+  religiao: 0
+  roubo: 0
+  currentLife: 0
+  maxLife: 0
+  actionPoints: 0
   defense: 0
   damage: 0
   currentExperience: 0
-  maxExperience: 100
+  maxExperience: 25
   level: 0
   currentWeight: 0
-  maxWeight: 88
-  availableSkillPoints: 80
+  maxWeight: 0
+  availableSkillPoints: 0

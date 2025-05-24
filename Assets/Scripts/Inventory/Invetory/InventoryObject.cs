@@ -248,13 +248,14 @@ public class InventorySlot
     {
         if (OnBeforeUpdate != null)
             OnBeforeUpdate.Invoke(this);
+            
         item = _item;
         amount = _amount;
         
-        if (OnAfterUpdate != null)
+        if (OnAfterUpdate != null && this != null)
             OnAfterUpdate.Invoke(this);
     }
-    
+
     public void RemoveItem()
     {
         UpdateSlot(new Item(), 0);

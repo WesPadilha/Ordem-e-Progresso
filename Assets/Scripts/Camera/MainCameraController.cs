@@ -16,6 +16,12 @@ public class MainCameraController : MonoBehaviour
 
     public ScreenController screenController; // Referência ao ScreenController
 
+    // Limites para o movimento da câmera no plano XZ
+    public float minX = -50f;
+    public float maxX = 50f;
+    public float minZ = -50f;
+    public float maxZ = 50f;
+
     private void Start()
     {
         maxY = cameraOffset.y; // Define o limite superior com base na posição inicial
@@ -27,7 +33,7 @@ public class MainCameraController : MonoBehaviour
     private void Update()
     {
         // Bloqueia movimentação da câmera se alguma UI estiver ativa
-        if (screenController != null && screenController.IsAnyUIActive() || screenController.IsStorageOpen())
+        if (screenController != null && (screenController.IsAnyUIActive() || screenController.IsStorageOpen()))
             return;
 
         // Movimento da câmera ao atingir as bordas da tela
@@ -62,6 +68,11 @@ public class MainCameraController : MonoBehaviour
         // Ajusta a posição Y da câmera para acompanhar o jogador no eixo Y, aplicando o zoom
         Vector3 newPosition = transform.position;
         newPosition.y = Mathf.Max(player.position.y + currentZoomOffsetY, minY);
+
+        // Aplica os limites no plano XZ
+        newPosition.x = Mathf.Clamp(newPosition.x, minX, maxX);
+        newPosition.z = Mathf.Clamp(newPosition.z, minZ, maxZ);
+
         transform.position = newPosition;
     }
 }

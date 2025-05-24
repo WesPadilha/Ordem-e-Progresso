@@ -89,7 +89,7 @@ public class CharacterData : ScriptableObject
 
         // Verifica se a vida está cheia antes do level up
         bool wasFullLife = currentLife == maxLife;
-        
+
         level++;
         currentExperience -= maxExperience;
         maxExperience += 100;
@@ -112,7 +112,7 @@ public class CharacterData : ScriptableObject
 
         maxWeight = CalculateMaxWeight(strength);
         actionPoints = CalculateActionPoints(agility);
-        
+
         if (level > 0)
         {
             availableSkillPoints += 20;
@@ -178,5 +178,30 @@ public class CharacterData : ScriptableObject
         // Você precisará acessar o inventário do jogador aqui
         // Isso será implementado no próximo passo
         NotifyChanges();
+    }
+
+    public float GetNegotiationBuyDiscount()
+    {
+        // 5% de desconto a cada 10 pontos, máximo de 50% (100 pontos)
+        int negotiationBonus = Mathf.Min(negociacao / 10, 10); // Máximo de 10 níveis (100 pontos)
+        return 1f - (negotiationBonus * 0.05f); // Retorna um multiplicador (0.95, 0.90, etc.)
+    }
+
+    public float GetNegotiationSellBonus()
+    {
+        // 5% de aumento a cada 10 pontos, máximo de 50% (100 pontos)
+        int negotiationBonus = Mathf.Min(negociacao / 10, 10); // Máximo de 10 níveis (100 pontos)
+        return 1f + (negotiationBonus * 0.05f); // Retorna um multiplicador (1.05, 1.10, etc.)
+    }
+    
+    public void AddNegotiationPoints(int points)
+    {
+        int oldNegotiation = negociacao;
+        negociacao = Mathf.Min(negociacao + points, 100); // Máximo de 100 pontos
+        
+        if(negociacao != oldNegotiation)
+        {
+            NotifyChanges(); // Dispara o evento de mudança
+        }
     }
 }
