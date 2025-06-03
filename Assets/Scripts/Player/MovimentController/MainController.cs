@@ -178,28 +178,17 @@ public class MainController : MonoBehaviour
         }
     }
 
-    public void SyncWithUnitController(Vector3 position)
+    public void StopMovement()
     {
-        if (agent != null)
+        if (agent != null && agent.hasPath)
         {
-            agent.Warp(position); // Ajusta o agente para a nova posição
+            agent.ResetPath();
         }
-    }
 
-    void OnDisable()
-    {
-        if (agent != null && agent.enabled && agent.isOnNavMesh)
+        if (currentSelection != null)
         {
-            // Para o agente de forma segura
-            agent.isStopped = true;
-        }
-    }
-    
-    void OnEnable()
-    {
-        if (agent != null)
-        {
-            agent.enabled = true;  // Reativa o NavMeshAgent
+            Destroy(currentSelection);
+            currentSelection = null;
         }
     }
 }

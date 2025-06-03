@@ -28,17 +28,7 @@ public class VendorUI : MonoBehaviour
     {
         if (isInitialized) return;
 
-        // Null check critical components
-        if (storeInterface == null || playerInterface == null || playerStatus == null)
-        {
-            Debug.LogError("VendorUI: Critical components are not assigned!");
-            return;
-        }
-
-        storeInterface.playerInventory = playerInterface.inventory;
-        storeInterface.playerStatus = playerStatus;
-        storeInterface.vendorUI = this;
-        
+        // Initialize money first
         storeInterface.inventory.Money = initialVendorMoney;
         UpdateVendorMoneyDisplay();
         
@@ -48,6 +38,12 @@ public class VendorUI : MonoBehaviour
             storeInterface.inventory.Clear();
         }
         
+        // Set references
+        storeInterface.playerInventory = playerInterface.inventory;
+        storeInterface.playerStatus = playerStatus;
+        storeInterface.vendorUI = this;
+        
+        // Add items
         Dictionary<ItemObject, int> itemCounts = new Dictionary<ItemObject, int>();
         
         foreach (ItemObject item in itemsForSale)
@@ -84,6 +80,12 @@ public class VendorUI : MonoBehaviour
         }
 
         isInitialized = true;
+        
+        // Force UI update after initialization
+        if (storeInterface != null)
+        {
+            storeInterface.UpdateAllSlotDisplays();
+        }
     }
 
     public void UpdateVendorMoneyDisplay()

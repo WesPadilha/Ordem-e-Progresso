@@ -18,6 +18,16 @@ public abstract class UserInterface : MonoBehaviour
             inventory.GetSlots[i].OnAfterUpdate += OnSlotUpdate;
         }
         CreateSlots();
+
+        slotsOnInterface.UpdateSlotDisplay();
+
+        // Atualiza o peso do inventário ao inicializar a interface
+        var weightManager = FindObjectOfType<InventoryWeightManager>();
+        if (weightManager != null)
+        {
+            weightManager.CalculateTotalWeight();
+        }
+        
         AddEvent(gameObject, EventTriggerType.PointerEnter, delegate { OnEnterInterface(gameObject); });
         AddEvent(gameObject, EventTriggerType.PointerExit, delegate { OnExitInterface(gameObject); });
     }

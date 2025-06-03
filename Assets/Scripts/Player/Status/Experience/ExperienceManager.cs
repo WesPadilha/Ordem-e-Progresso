@@ -16,7 +16,6 @@ public class ExperienceManager : MonoBehaviour
         else
         {
             Instance = this;
-            DontDestroyOnLoad(gameObject); // Opcional: mantém entre cenas
         }
     }
 

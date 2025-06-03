@@ -3,6 +3,7 @@ using UnityEngine.EventSystems;
 using UnityEngine.UI;
 using TMPro;
 using System.Collections.Generic;
+using System.Collections;
 
 public class StoreInterface : UserInterface
 {
@@ -40,6 +41,8 @@ public class StoreInterface : UserInterface
             if (vendorSlot != null)
             {
                 vendorSlot.SetupSlot(inventory.GetSlots[i]);
+                // Force immediate UI update
+                vendorSlot.UpdateSlotUI();
             }
         }
 
@@ -48,11 +51,38 @@ public class StoreInterface : UserInterface
             quantitySelector.SetStoreInterface(this);
             quantitySelector.selectorPanel.SetActive(false);
         }
+        
+        // Force update all slots after creation
+        StartCoroutine(DelayedSlotUpdate());
+    }
+
+    private IEnumerator DelayedSlotUpdate()
+    {
+        yield return null; // Wait one frame
+        foreach (var slot in slotsOnInterface.Values)
+        {
+            if (slot.slotDisplay != null)
+            {
+                VendorSlot vendorSlot = slot.slotDisplay.GetComponent<VendorSlot>();
+                if (vendorSlot != null) 
+                {
+                    vendorSlot.UpdateSlotUI();
+                }
+            }
+        }
+    }
+    
+    public void UpdateAllSlotDisplays()
+    {
+        foreach (var slot in slotsOnInterface.Values)
+        {
+            UpdateSlotDisplay(slot);
+        }
     }
 
     private Vector3 GetPosition(int i)
     {
-        return new Vector3(X_START + (X_SPACE_BETWEEN_ITEM * (i % NUMBER_OF_COLUMN)), 
+        return new Vector3(X_START + (X_SPACE_BETWEEN_ITEM * (i % NUMBER_OF_COLUMN)),
                          Y_START + (-Y_SPACE_BETWEEN_ITEM * (i / NUMBER_OF_COLUMN)), 0f);
     }
 

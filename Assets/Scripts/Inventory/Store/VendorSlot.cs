@@ -33,6 +33,7 @@ public class VendorSlot : MonoBehaviour
     {
         if (isDestroyed) return;
 
+        // Unsubscribe from previous slot if exists
         if (this.inventorySlot != null)
         {
             this.inventorySlot.OnAfterUpdate -= OnSlotUpdated;
@@ -42,8 +43,19 @@ public class VendorSlot : MonoBehaviour
         if (slot != null)
         {
             slot.OnAfterUpdate += OnSlotUpdated;
+            // Force immediate update
+            UpdateSlotUI();
+            
+            // Additional check for first-time setup
+            if (priceText != null && priceText.text == "")
+            {
+                UpdateSlotUI();
+            }
         }
-        UpdateSlotUI();
+        else
+        {
+            ClearSlot();
+        }
     }
 
     private void OnSlotUpdated(InventorySlot slot)
