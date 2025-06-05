@@ -7,11 +7,11 @@ public class MovementUI : MonoBehaviour
 
     public void UpdateActionPoints(int currentPoints)
     {
-        actionPointsText.text = "" + currentPoints.ToString();
+        actionPointsText.text = "PA: " + currentPoints.ToString();
     }
 
     public void ShowNoCombat()
     {
-        actionPointsText.text = "--";
+        actionPointsText.text = "PA: --";
     }
 }

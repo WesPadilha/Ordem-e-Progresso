@@ -13,7 +13,7 @@ public class PlayerLife : MonoBehaviour
     {
         if (characterData != null)
         {
-            characterData.Initialize(); // Configura vida máxima no início
+            characterData.Initialize();
             characterData.OnLifeChanged += OnCharacterLifeChanged;
             UpdateLifeUI();
         }
@@ -52,23 +52,40 @@ public class PlayerLife : MonoBehaviour
     {
         if (characterData == null || IsInvulnerable) return;
 
-        characterData.SetCurrentLife(characterData.currentLife - damage);
+        // Calcula chance de evitar dano baseado na sorte (luck)
+        float luckAvoidanceChance = Mathf.Clamp(characterData.luck * 2f, 0f, 100f) / 100f;
         
-        // Adicione feedback visual/auditivo se desejar
-        Debug.Log("Player tomou dano: " + damage);
+        // Testa se o jogador teve sorte de evitar o dano completamente
+        if (Random.Range(0f, 1f) < luckAvoidanceChance)
+        {
+            Debug.Log($"Sorte evitou todo o dano! (Chance: {luckAvoidanceChance*100}%)");
+            return; // Sai sem aplicar dano
+        }
+
+        // Converte defense em porcentagem e calcula redução
+        float defenseReduction = Mathf.Clamp(characterData.defense, 0, 100) / 100f;
+        int reducedDamage = Mathf.CeilToInt(damage * (1f - defenseReduction));
+
+        // Garante dano mínimo de 1 se dano original > 0
+        if (damage > 0 && reducedDamage < 1)
+        {
+            reducedDamage = 1;
+        }
+
+        characterData.SetCurrentLife(characterData.currentLife - reducedDamage);
+
+        Debug.Log($"Player tomou {reducedDamage} de dano (Original: {damage}, Defesa: {characterData.defense}%)");
     }
 
-    // No script PlayerLife, atualize o método Heal:
     public void Heal(int amount)
     {
         if (characterData == null) return;
 
-        // Calcula a cura respeitando o máximo de vida
         int newLife = Mathf.Min(characterData.currentLife + amount, characterData.maxLife);
         int actualHeal = newLife - characterData.currentLife;
-        
+
         characterData.SetCurrentLife(newLife);
-        
+
         Debug.Log($"Curou {actualHeal} pontos de vida (Total: {characterData.currentLife}/{characterData.maxLife})");
     }
 

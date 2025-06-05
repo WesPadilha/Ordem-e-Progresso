@@ -157,6 +157,12 @@ public class MovimentCombat : MonoBehaviour
     {
         return currentActionPoints;
     }
+    
+    public void SpendActionPoints(int amount)
+    {
+        currentActionPoints = Mathf.Max(0, currentActionPoints - amount);
+        ui?.UpdateActionPoints((int)currentActionPoints);
+    }
 
     public void DisableMovement()
     {

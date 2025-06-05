@@ -8,14 +8,20 @@ public class ScreenController : MonoBehaviour
     public GameObject Daily;
     public GameObject Map;
     public MainCameraController mainCameraController;   
-    private bool isConversationActive = false; // Acompanhar se a conversa está ativa
-    private bool isStoreOpen = false; // Estado da loja
-    private bool isStorageOpen = false; // Estado da loja
+    private bool isConversationActive = false;
+    private bool isStoreOpen = false;
+    private bool isStorageOpen = false;
     private ItemContextMenu itemContextMenu;
+    private TurnManager turnManager;
+    private MovimentCombat playerMovement;
+    private CombatStatusChecker combatStatusChecker;
 
     private void Awake()
     {
         itemContextMenu = FindObjectOfType<ItemContextMenu>();
+        turnManager = FindObjectOfType<TurnManager>();
+        playerMovement = FindObjectOfType<MovimentCombat>();
+        combatStatusChecker = FindObjectOfType<CombatStatusChecker>();
     }
 
     public bool IsAnyUIActive()
@@ -33,8 +39,11 @@ public class ScreenController : MonoBehaviour
             CloseAllUI();
         }
 
-        // Só permite abrir o inventário ou atributos se a conversa não estiver ativa, a loja não estiver aberta e o armazenamento não estiver aberto
-        if (!isConversationActive && !isStoreOpen && !isStorageOpen)
+        // Verifica se está em combate e não é o turno do jogador
+        bool isEnemyTurn = combatStatusChecker.IsInCombat() && turnManager.currentPhase == TurnManager.TurnPhase.Enemies;
+        
+        // Só permite abrir interfaces se não for turno dos inimigos
+        if (!isConversationActive && !isStoreOpen && !isStorageOpen && !isEnemyTurn)
         {
             if (Input.GetKeyDown(KeyCode.Tab))
             {
@@ -57,7 +66,7 @@ public class ScreenController : MonoBehaviour
 
     public void ToggleAttributes()
     {
-        if (Pause.GameIsPaused || isStoreOpen || isStorageOpen) return; // Bloqueia se o jogo estiver pausado, loja ou storage abertas
+        if (Pause.GameIsPaused || isStoreOpen || isStorageOpen) return;
 
         bool isActive = Attributes.gameObject.activeSelf;
         Attributes.gameObject.SetActive(!isActive);
@@ -73,10 +82,30 @@ public class ScreenController : MonoBehaviour
     {
         if (Pause.GameIsPaused || isStoreOpen || isStorageOpen) return;
 
+        bool isOpening = !Inventory.gameObject.activeSelf;
+
+        // Se estiver em combate e for abrir o inventário (não fechar)
+        if (isOpening && combatStatusChecker.IsInCombat())
+        {
+            if (turnManager.currentPhase != TurnManager.TurnPhase.Player)
+            {
+                Debug.Log("Não é turno do jogador para abrir o inventário!");
+                return;
+            }
+
+            if (playerMovement.GetCurrentActionPoints() < 4)
+            {
+                Debug.Log("Pontos de ação insuficientes para abrir o inventário em combate!");
+                return;
+            }
+
+            // Gasta apenas 4 pontos de ação ao abrir o inventário
+            playerMovement.SpendActionPoints(4);
+        }
+
         bool isActive = Inventory.gameObject.activeSelf;
         Inventory.gameObject.SetActive(!isActive);
         
-        // Fecha o menu de contexto ao fechar o inventário
         if (!isActive && itemContextMenu != null)
         {
             itemContextMenu.CloseContextMenu();
@@ -92,7 +121,7 @@ public class ScreenController : MonoBehaviour
 
     public void ToggleDaily()
     {
-        if (Pause.GameIsPaused || isStoreOpen || isStorageOpen) return; // Bloqueia se o jogo estiver pausado, loja ou storage abertas
+        if (Pause.GameIsPaused || isStoreOpen || isStorageOpen) return;
 
         bool isActive = Daily.gameObject.activeSelf;
         Daily.gameObject.SetActive(!isActive);
@@ -106,7 +135,7 @@ public class ScreenController : MonoBehaviour
 
     public void ToggleMap()
     {
-        if (Pause.GameIsPaused || isStoreOpen || isStorageOpen) return; // Bloqueia se o jogo estiver pausado, loja ou storage abertas
+        if (Pause.GameIsPaused || isStoreOpen || isStorageOpen) return;
 
         bool isActive = Map.gameObject.activeSelf;
         Map.gameObject.SetActive(!isActive);

@@ -69,6 +69,10 @@ public class TurnManager : MonoBehaviour
     public void EndPlayerTurn()
     {
         Debug.Log("Turno do Player terminou.");
+        
+        // Zera os pontos de ação do jogador
+        playerMovement.SpendActionPoints((int)playerMovement.GetCurrentActionPoints());
+
         playerMovement.DisableMovement();
         StartEnemiesTurn();
     }

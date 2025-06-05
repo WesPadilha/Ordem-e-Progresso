@@ -20,6 +20,13 @@ public class DialogNPC : MonoBehaviour
     private bool isConversationActive = false;
     private Vector3 conversationCameraPosition;
     private Quaternion conversationCameraRotation;
+    private CombatStatusChecker combatStatusChecker;
+
+    void Awake()
+    {
+        // Adiciona esta linha no Awake para obter a referência
+        combatStatusChecker = FindObjectOfType<CombatStatusChecker>();
+    }
 
     void Update()
     {
@@ -32,8 +39,15 @@ public class DialogNPC : MonoBehaviour
 
     private void OnMouseOver()
     {
-        if (Pause.GameIsPaused || Vector3.Distance(player.position, transform.position) > interactionDistance || screenController.IsAnyUIActive() || screenController.IsStorageOpen())
+        // Adiciona verificação de combate aqui
+        if (Pause.GameIsPaused || 
+            Vector3.Distance(player.position, transform.position) > interactionDistance || 
+            screenController.IsAnyUIActive() || 
+            screenController.IsStorageOpen() ||
+            (combatStatusChecker != null && combatStatusChecker.IsInCombat())) // Nova condição
+        {
             return;
+        }
 
         if (Input.GetMouseButtonDown(0))
         {
@@ -43,8 +57,13 @@ public class DialogNPC : MonoBehaviour
 
     public void StartConversation()
     {
-        if (isConversationActive || screenController.IsAnyUIActive())
+        // Adiciona verificação de combate aqui também
+        if (isConversationActive || 
+            screenController.IsAnyUIActive() || 
+            (combatStatusChecker != null && combatStatusChecker.IsInCombat()))
+        {
             return;
+        }
 
         // Para o movimento do agente
         var agent = player.GetComponent<NavMeshAgent>();
