@@ -35,10 +35,4 @@ public class LifeEnemy : MonoBehaviour
         }
         Destroy(gameObject);
     }
-
-    // Para teste com clique do mouse
-    void OnMouseDown()
-    {
-        TakeDamage(1); // Agora usa o método TakeDamage em vez de manipular direto
-    }
 }

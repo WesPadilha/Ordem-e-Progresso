@@ -14,12 +14,15 @@ public class Storage : MonoBehaviour
     public GameObject hud;
     public CharacterData characterData;
     public int requiredArrombamento = 50;
-
-    public ViewStorage viewStorage; // Referência ao ViewStorage no mesmo GameObject
+    public ViewStorage viewStorage;
 
     private Vector3 originalCameraPosition;
     private Quaternion originalCameraRotation;
     private bool hasGivenXP = false;
+
+    public Animator storageAnimator; // ⬅ Referência ao Animator
+    private readonly string openAnim = "abrir";
+    private readonly string closeAnim = "fechar";
 
     private void OnMouseOver()
     {
@@ -52,6 +55,13 @@ public class Storage : MonoBehaviour
             hasGivenXP = true;
         }
 
+        // Ativa parâmetro Abrir e desativa Fechar
+        if (storageAnimator != null)
+        {
+            storageAnimator.SetBool("Abrir", true);
+            storageAnimator.SetBool("Fechar", false);
+        }
+
         storageUI.SetActive(true);
         screenController.SetStorageState(true);
 
@@ -64,6 +74,13 @@ public class Storage : MonoBehaviour
 
     public void CloseStorage()
     {
+        // Ativa parâmetro Fechar e desativa Abrir
+        if (storageAnimator != null)
+        {
+            storageAnimator.SetBool("Fechar", true);
+            storageAnimator.SetBool("Abrir", false);
+        }
+
         storageUI.SetActive(false);
         screenController.SetStorageState(false);
         hud.SetActive(true);

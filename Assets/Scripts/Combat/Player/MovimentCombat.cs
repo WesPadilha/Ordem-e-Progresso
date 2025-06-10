@@ -7,21 +7,23 @@ public class MovimentCombat : MonoBehaviour
     public Camera mainCamera;
     public NavMeshAgent agent;
     public GameObject selectionPrefab;
-    public MovementUI ui; // UI para exibir pontos de ação
-    public ScreenController screenController; // Bloquear movimento se UI estiver aberta
-
-    public CharacterData characterData; // Referência para pegar actionPoints
+    public MovementUI ui;
+    public ScreenController screenController;
+    public CharacterData characterData;
 
     private float currentActionPoints;
     private Vector3 lastPosition;
     private GameObject currentSelection;
-
     private bool isMoving = false;
     private Vector3 targetPosition;
+
+    private Animator animator; // << NOVO
 
     void Start()
     {
         agent = GetComponent<NavMeshAgent>();
+        animator = GetComponent<Animator>(); // << NOVO
+
         currentActionPoints = characterData.actionPoints;
         ui?.UpdateActionPoints(characterData.actionPoints);
         lastPosition = transform.position;
@@ -32,19 +34,22 @@ public class MovimentCombat : MonoBehaviour
         if (screenController != null && (screenController.IsAnyUIActive() || Pause.GameIsPaused))
             return;
 
-        // Atualiza gasto de PA conforme distância percorrida
+        // Atualiza animação de corrida
+        if (animator != null)
+        {
+            animator.SetBool("Run", agent.velocity.magnitude > 0.1f);
+        }
+
         if (isMoving)
         {
             float distanceMoved = Vector3.Distance(transform.position, lastPosition);
 
             if (distanceMoved > 0f)
             {
-                // Gasta PA baseado na distância percorrida
                 float paToSpend = distanceMoved;
 
                 if (paToSpend > currentActionPoints)
                 {
-                    // Sem PA suficiente para continuar, para o agente
                     agent.ResetPath();
                     isMoving = false;
                     currentActionPoints = 0;
@@ -54,11 +59,9 @@ public class MovimentCombat : MonoBehaviour
 
                 currentActionPoints -= paToSpend;
                 ui?.UpdateActionPoints((int)currentActionPoints);
-
                 lastPosition = transform.position;
             }
 
-            // Verifica se chegou ao destino
             if (!agent.pathPending && agent.remainingDistance <= agent.stoppingDistance)
             {
                 isMoving = false;
@@ -74,7 +77,7 @@ public class MovimentCombat : MonoBehaviour
 
     private void TrySetNewDestination()
     {
-        if (isMoving) 
+        if (isMoving)
         {
             Debug.Log("Já está se movendo. Espere chegar ao destino.");
             return;
@@ -101,7 +104,6 @@ public class MovimentCombat : MonoBehaviour
                     return;
                 }
 
-                // Se a distância é maior que PA disponível, limita o destino
                 if (distanceToDestination > currentActionPoints)
                 {
                     Vector3 direction = (destination - transform.position).normalized;
@@ -109,13 +111,11 @@ public class MovimentCombat : MonoBehaviour
                     distanceToDestination = currentActionPoints;
                 }
 
-                // Atualiza destino do agente
                 agent.SetDestination(destination);
                 isMoving = true;
                 targetPosition = destination;
                 lastPosition = transform.position;
 
-                // Atualiza seleção visual
                 DestroySelection();
                 Quaternion rotation = Quaternion.Euler(90f, 0f, 0f);
                 currentSelection = Instantiate(selectionPrefab, destination + new Vector3(0, 0.25f, 0), rotation);
@@ -153,11 +153,8 @@ public class MovimentCombat : MonoBehaviour
             Destroy(selection);
     }
 
-    public float GetCurrentActionPoints()
-    {
-        return currentActionPoints;
-    }
-    
+    public float GetCurrentActionPoints() => currentActionPoints;
+
     public void SpendActionPoints(int amount)
     {
         currentActionPoints = Mathf.Max(0, currentActionPoints - amount);
@@ -179,14 +176,9 @@ public class MovimentCombat : MonoBehaviour
 
     public void EnableMovement()
     {
-        // Não precisamos fazer nada especial aqui pois o movimento
-        // é ativado quando o jogador clica com o mouse
-        // Podemos apenas resetar o estado se necessário
         isMoving = false;
         agent.ResetPath();
         DestroySelection();
-        
-        // Atualiza a UI para mostrar os pontos de ação disponíveis
         ui?.UpdateActionPoints((int)currentActionPoints);
     }
 

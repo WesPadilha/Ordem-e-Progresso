@@ -5,7 +5,7 @@ using UnityEngine;
 public class EnemyProjectile : MonoBehaviour
 {
     private float velocidade = 50f;
-    private float tempoDestruir = 5f;
+    private float tempoDestruir = 3f;
 
     public int dano { get; set; }
 
@@ -19,22 +19,13 @@ public class EnemyProjectile : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-        // Se colidir com um inimigo, ignora
-        if (other.CompareTag("Enemy"))
-        {
-            return;
-        }
-
-        // Se colidir com o player, aplica o dano
         PlayerLife player = other.GetComponent<PlayerLife>();
+
         if (player != null)
         {
             player.TakeDamage(dano);
-            Destroy(gameObject);
-            return;
         }
 
-        // Se colidir com qualquer outra coisa, destrói
         Destroy(gameObject);
     }
 

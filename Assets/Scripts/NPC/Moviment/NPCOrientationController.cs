@@ -40,20 +40,25 @@ public class NPCOrientationController : MonoBehaviour
 
     private IEnumerator RotateTowards(Transform target)
     {
-        // Calcula a rotação desejada em direção ao jogador
-        Quaternion targetRotation = Quaternion.LookRotation((target.position - transform.position).normalized);
-
-        while (Quaternion.Angle(transform.rotation, targetRotation) > 0.1f)
+        while (true)
         {
-            // Interpola suavemente entre a rotação atual e a desejada
+            Vector3 direction = (target.position - transform.position).normalized;
+            if (direction.magnitude < 0.01f)
+                break;
+
+            Quaternion targetRotation = Quaternion.LookRotation(new Vector3(direction.x, 0f, direction.z));
             transform.rotation = Quaternion.Lerp(transform.rotation, targetRotation, Time.deltaTime * rotationSpeed);
+
+            // Condição de parada
+            if (Quaternion.Angle(transform.rotation, targetRotation) < 0.1f)
+            {
+                transform.rotation = targetRotation;
+                break;
+            }
+
             yield return null;
         }
 
-        // Garante precisão ao final da rotação
-        transform.rotation = targetRotation;
-
-        // Libera a referência à coroutine
         currentRotationCoroutine = null;
     }
 

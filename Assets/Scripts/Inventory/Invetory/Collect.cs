@@ -7,12 +7,27 @@ public class Collect : MonoBehaviour
     public InventoryObject inventory;
     public InventoryObject equipment;
     public Attribute[] attributes;
+
+    private Transform weapon;
+    private Transform armor;
+    public Transform weaponTransform;
+
+    private Animator animator;
+    private int currentWeaponLayerIndex = 0; // 0 = base, 1 = short, 2 = medium, 3 = long range
+    //private float layerTransitionSpeed = 1f;
+
+    private BoneCombiner boneCombiner;
+    
     public CharacterData characterData;
-    public UserInterface equipmentUI; // Add reference to equipment UI
+    public UserInterface equipmentUI;
+
+    private void Awake()
+    {
+        animator = GetComponent<Animator>();
+    }
 
     private void Start()
     {
-        // Validate references
         if (equipment == null)
         {
             Debug.LogError("Equipment inventory not assigned in Collect script");
@@ -25,11 +40,11 @@ public class Collect : MonoBehaviour
             return;
         }
 
-        // Initialize attributes
+        boneCombiner = new BoneCombiner(gameObject);
+
         for (int i = 0; i < attributes.Length; i++)
         {
             attributes[i].SetParent(this);
-            // Initialize CharacterData with base attribute values
             if (attributes[i].type == AttributesItem.damage)
             {
                 characterData.damage = attributes[i].value.BaseValue;
@@ -40,30 +55,27 @@ public class Collect : MonoBehaviour
             }
         }
         
-        // Initialize equipment slots
         for (int i = 0; i < equipment.GetSlots.Length; i++)
         {
-            // Set parent reference if not set
             if (equipment.GetSlots[i].parent == null)
             {
                 equipment.GetSlots[i].parent = equipmentUI;
             }
             
-            equipment.GetSlots[i].OnBeforeUpdate += OnBeforeSlotUpdate;
-            equipment.GetSlots[i].OnAfterUpdate += OnAfterSlotUpdate;
+            equipment.GetSlots[i].OnBeforeUpdate += OnRemoveItem;
+            equipment.GetSlots[i].OnAfterUpdate += OnAddItem;
         }
         
-        // Initialize with any currently equipped items
         foreach (var slot in equipment.GetSlots)
         {
             if (slot.ItemObject != null)
             {
-                OnAfterSlotUpdate(slot);
+                OnAddItem(slot);
             }
         }
     }
 
-    public void OnBeforeSlotUpdate(InventorySlot _slot)
+    public void OnRemoveItem(InventorySlot _slot)
     {
         if (_slot.ItemObject == null)
             return;
@@ -82,11 +94,32 @@ public class Collect : MonoBehaviour
                         }
                     }
                 }
+
+                if (_slot.ItemObject.characterDisplay != null)
+                {
+                    switch (_slot.AllowedItems[0])
+                    {
+                        case ItemType.Weapon:
+                            if (weapon != null)
+                            {
+                                Destroy(weapon.gameObject);
+                            }
+                            currentWeaponLayerIndex = 0;
+                            ResetAllAnimationLayers();
+                            break;
+                        case ItemType.Armor:
+                            if (armor != null)
+                            {
+                                Destroy(armor.gameObject);
+                            }
+                            break;
+                    }
+                }
                 break;
         }
     }
 
-    public void OnAfterSlotUpdate(InventorySlot _slot)
+    public void OnAddItem(InventorySlot _slot)
     {
         if (_slot.ItemObject == null)
             return;
@@ -105,7 +138,54 @@ public class Collect : MonoBehaviour
                         }
                     }
                 }
+
+                if (_slot.ItemObject.characterDisplay != null)
+                {
+                    switch (_slot.AllowedItems[0])
+                    {
+                        case ItemType.Weapon:
+                            if (weapon != null)
+                            {
+                                Destroy(weapon.gameObject);
+                            }
+                            weapon = Instantiate(_slot.ItemObject.characterDisplay, weaponTransform).transform;
+                            SetWeaponAnimationLayer(_slot.ItemObject.weaponRangeType);
+                            break;
+                        case ItemType.Armor:
+                            if (armor != null)
+                            {
+                                Destroy(armor.gameObject);
+                            }
+                            armor = boneCombiner.AddLimb(_slot.ItemObject.characterDisplay, _slot.ItemObject.boneNames);
+                            break;
+                    }
+                }
                 break;
+        }
+    }
+
+    private void SetWeaponAnimationLayer(WeaponRangeType weaponType)
+    {
+        currentWeaponLayerIndex = (int)weaponType;
+        
+        if (animator != null)
+        {
+            // Ativa imediatamente a camada correta
+            for (int i = 1; i <= 3; i++)
+            {
+                animator.SetLayerWeight(i, i == currentWeaponLayerIndex ? 1f : 0f);
+            }
+        }
+    }
+
+    private void ResetAllAnimationLayers()
+    {
+        if (animator != null)
+        {
+            for (int i = 1; i <= 3; i++)
+            {
+                animator.SetLayerWeight(i, 0f);
+            }
         }
     }
 
@@ -151,7 +231,6 @@ public class Collect : MonoBehaviour
     {
         Debug.Log(string.Concat(attribute.type, " was updated! Value is now ", attribute.value.ModifiedValue));
         
-        // Update CharacterData when attributes are modified
         if (characterData != null)
         {
             if (attribute.type == AttributesItem.damage)
@@ -166,7 +245,6 @@ public class Collect : MonoBehaviour
         }
     }
 }
-
 [System.Serializable]
 public class Attribute
 {

@@ -7,6 +7,7 @@ public class PlayerLife : MonoBehaviour
     public CharacterData characterData;
     public Slider lifeSlider;
     public TMP_Text lifeText;
+    public AvoidDamageUI avoidDamageUI; 
     public bool IsInvulnerable { get; set; } = false;
 
     void Start()
@@ -58,9 +59,14 @@ public class PlayerLife : MonoBehaviour
         // Testa se o jogador teve sorte de evitar o dano completamente
         if (Random.Range(0f, 1f) < luckAvoidanceChance)
         {
-            Debug.Log($"Sorte evitou todo o dano! (Chance: {luckAvoidanceChance*100}%)");
-            return; // Sai sem aplicar dano
+            Debug.Log($"Sorte evitou todo o dano! (Chance: {luckAvoidanceChance * 100}%)");
+            
+            if (avoidDamageUI != null)
+                avoidDamageUI.ShowAvoidMessage("Sorte! Você não tomou dano!");
+
+            return;
         }
+
 
         // Converte defense em porcentagem e calcula redução
         float defenseReduction = Mathf.Clamp(characterData.defense, 0, 100) / 100f;

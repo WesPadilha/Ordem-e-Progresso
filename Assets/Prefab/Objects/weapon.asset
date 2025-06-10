@@ -13,6 +13,7 @@ MonoBehaviour:
   m_Name: weapon
   m_EditorClassIdentifier: 
   uiDisplay: {fileID: 21300000, guid: a15bc3c4d923d824c96b601fd54c4043, type: 3}
+  characterDisplay: {fileID: 7099356878205097023, guid: 987e106c721753a4c8379015243b2314, type: 3}
   stackable: 0
   type: 2
   description: "O rio de janeiro n\xE3o \xE9 lindo"
@@ -24,4 +25,8 @@ MonoBehaviour:
       value: 0
       min: 6
       max: 12
+    weaponRangeType: 0
   price: 10
+  weight: 1
+  weaponRangeType: 2
+  boneNames: []

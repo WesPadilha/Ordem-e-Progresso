@@ -4,17 +4,17 @@ using System.Collections;
 
 public class EnemyChase : MonoBehaviour
 {
+    [Header("Configuração")]
     public NavMeshAgent agent;
     public int maxActionPoints = 10;
+
     private float currentActionPoints;
     private EnemyGroupController groupController;
-
+    private EnemyWeapon weapon;
     private GameObject player;
+
     private Vector3 lastPosition;
     private bool isChasing = false;
-
-    private EnemyWeapon weapon;
-
     private bool isActing = false;
 
     public bool IsChasing() => isChasing;
@@ -34,9 +34,7 @@ public class EnemyChase : MonoBehaviour
         }
 
         if (weapon == null)
-        {
             Debug.LogWarning("EnemyWeapon não encontrado.");
-        }
 
         ResetActionPoints();
     }
@@ -47,7 +45,7 @@ public class EnemyChase : MonoBehaviour
 
         float distanceMoved = Vector3.Distance(transform.position, lastPosition);
 
-        if (distanceMoved > 0f)
+        if (distanceMoved > 0.05f)
         {
             float paToSpend = distanceMoved;
 
@@ -62,13 +60,18 @@ public class EnemyChase : MonoBehaviour
             lastPosition = transform.position;
         }
 
-        // 👉 Faz o inimigo sempre olhar para o player, sem gastar PA
-        Vector3 direction = (player.transform.position - transform.position).normalized;
-        direction.y = 0; // Mantém a rotação apenas no eixo Y
-        if (direction.magnitude > 0.01f) // Evita olhar para direção nula
+        LookAtPlayer();
+    }
+
+    private void LookAtPlayer()
+    {
+        Vector3 direction = (player.transform.position - transform.position);
+        direction.y = 0;
+
+        if (direction.sqrMagnitude > 0.01f)
         {
-            Quaternion lookRotation = Quaternion.LookRotation(direction);
-            transform.rotation = Quaternion.Slerp(transform.rotation, lookRotation, Time.deltaTime * 10f); // Suaviza a rotação
+            Quaternion targetRotation = Quaternion.LookRotation(direction);
+            transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, Time.deltaTime * 10f);
         }
     }
 
@@ -93,39 +96,22 @@ public class EnemyChase : MonoBehaviour
             float attackRange = weapon.GetAttackRange();
             int attackCost = weapon.GetActionPointsCost();
 
-            // 👉 Se está muito perto, afasta
-            if (distanceToPlayer <= 4f)
+            // ✅ Se está muito perto, afasta
+            if (distanceToPlayer <= 3f)
             {
                 Debug.Log($"{gameObject.name} está muito perto do player, afastando...");
-
-                yield return MoveAwayFromPlayer(4f);
+                yield return MoveAwayFromPlayer(3f);
                 yield return RotateTowardsPlayerSmoothly();
-
-                // Após rotacionar, verifica se tem PA e se está no alcance para atacar
                 distanceToPlayer = Vector3.Distance(transform.position, player.transform.position);
-
-                if (distanceToPlayer <= attackRange && currentActionPoints >= attackCost)
-                {
-                    Attack();
-                    currentActionPoints -= attackCost;
-                    yield return new WaitForSeconds(0.5f);
-                    continue;
-                }
-                else
-                {
-                    Debug.Log($"{gameObject.name} não tem PA suficiente ou não está no alcance após afastar.");
-                    break;
-                }
             }
-            // 👉 Se está no alcance, ataca
-            else if (distanceToPlayer <= attackRange)
+
+            // ✅ Se dentro do alcance, ataca
+            if (distanceToPlayer <= attackRange)
             {
                 if (currentActionPoints >= attackCost)
                 {
-                    // Primeiro rotaciona suavemente
                     yield return RotateTowardsPlayerSmoothly();
 
-                    // Depois ataca
                     Attack();
                     currentActionPoints -= attackCost;
 
@@ -138,51 +124,69 @@ public class EnemyChase : MonoBehaviour
                     break;
                 }
             }
-            else
+
+            // ✅ Se não está no alcance, move-se até o player
+            if (currentActionPoints > 0)
             {
-                // 👉 Não está no alcance, move-se até o player
-                agent.SetDestination(player.transform.position);
+                Vector3 destination = player.transform.position;
 
-                yield return new WaitForSeconds(0.1f);
+                agent.SetDestination(destination);
 
-                if (!agent.pathPending && agent.remainingDistance <= attackRange)
+                while (agent.pathPending)
+                    yield return null;
+
+                // Espera mover um pouco ou até estar no alcance
+                while (agent.remainingDistance > attackRange && currentActionPoints > 0)
                 {
-                    agent.ResetPath();
-                    Debug.Log($"{gameObject.name} parou, chegou no alcance.");
-                    continue;
+                    yield return null;
                 }
 
-                if (currentActionPoints <= 0f)
+                agent.ResetPath();
+
+                if (Vector3.Distance(transform.position, player.transform.position) <= attackRange)
                 {
-                    Debug.Log($"{gameObject.name} ficou sem PA após mover.");
+                    Debug.Log($"{gameObject.name} chegou no alcance.");
+                    continue;
+                }
+                else
+                {
+                    Debug.Log($"{gameObject.name} não conseguiu alcançar o player.");
                     break;
                 }
             }
         }
 
-        // 👉 Fim do turno
         StopChasing();
     }
 
     private IEnumerator MoveAwayFromPlayer(float distance)
     {
         Vector3 directionAway = (transform.position - player.transform.position).normalized;
-        Vector3 targetPos = player.transform.position + directionAway * distance;
+        Vector3 targetPos = transform.position + directionAway * distance;
 
-        agent.SetDestination(targetPos);
-
-        while (!agent.pathPending && agent.remainingDistance > agent.stoppingDistance)
+        NavMeshHit hit;
+        if (NavMesh.SamplePosition(targetPos, out hit, 5f, NavMesh.AllAreas))
         {
-            // Espera até chegar no destino
-            yield return null;
+            agent.SetDestination(hit.position);
         }
+        else
+        {
+            Debug.Log($"{gameObject.name} não encontrou posição para se afastar.");
+            yield break;
+        }
+
+        while (agent.pathPending)
+            yield return null;
+
+        while (agent.remainingDistance > agent.stoppingDistance)
+            yield return null;
 
         agent.ResetPath();
     }
-    
+
     private IEnumerator RotateTowardsPlayerSmoothly()
     {
-        float rotationSpeed = 180f; // graus por segundo
+        float rotationSpeed = 360f;
 
         while (!IsFacingPlayer())
         {
@@ -199,11 +203,11 @@ public class EnemyChase : MonoBehaviour
     private bool IsFacingPlayer()
     {
         Vector3 directionToPlayer = (player.transform.position - transform.position).normalized;
-        directionToPlayer.y = 0; // Ignora a inclinação
+        directionToPlayer.y = 0;
 
         float angle = Vector3.Angle(transform.forward, directionToPlayer);
 
-        return angle < 5f; // Considera alinhado se o ângulo for menor que 5 graus
+        return angle < 5f;
     }
 
     public void Attack()
@@ -220,7 +224,6 @@ public class EnemyChase : MonoBehaviour
             Debug.LogWarning($"{gameObject.name} tentou atacar sem estar mirando no player.");
         }
     }
-
 
     public void ResetActionPoints()
     {

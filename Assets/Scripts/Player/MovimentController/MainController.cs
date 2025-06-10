@@ -1,5 +1,4 @@
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
 
@@ -8,46 +7,44 @@ public class MainController : MonoBehaviour
     public Camera mainCamera;
     private RaycastHit hit;
     public NavMeshAgent agent;
-    private string groundTag = "Ground";
-    private string npcTag = "NPC";
-    private string storageTag = "Storage"; // Tag para Storage
-
     public ScreenController screenController;
-    public GameObject selectionPrefab; // Prefab do selection
+    public GameObject selectionPrefab;
 
-    // Distância mínima até o NPC ou Storage
     public float stopDistance = 4f;
+    private bool clickedOnNPC = false;
+    private bool clickedOnStorage = false;
+    private GameObject currentSelection;
 
-    private bool clickedOnNPC = false; // Flag para saber se o NPC foi clicado
-    private bool clickedOnStorage = false; // Flag para saber se o Storage foi clicado
-
-    private GameObject currentSelection; // Referência para o selection atual
+    private Animator animator;
 
     void Start()
     {
         agent = GetComponent<NavMeshAgent>();
+        animator = GetComponent<Animator>();
     }
 
     void Update()
     {
-        // Evita movimento se a UI estiver ativa ou se o storage estiver aberto
         if (screenController != null && (screenController.IsAnyUIActive() || Pause.GameIsPaused || screenController.IsStorageOpen()))
             return;
 
-        // Movimento para terreno com clique direito
+        // Atualiza animação de corrida: só corre se tiver caminho e velocidade significativa
+        if (animator != null)
+        {
+            animator.SetBool("Run", agent.hasPath && agent.velocity.magnitude > 0.1f);
+        }
+
         if (Input.GetMouseButtonDown(1))
         {
             MoveToGround();
         }
 
-        // Movimento para NPC com clique esquerdo
         if (Input.GetMouseButtonDown(0))
         {
             MoveToNPC();
-            MoveToStorage(); // Tenta mover para o storage também
+            MoveToStorage();
         }
 
-        // Verifica se chegou ao destino (para NPC ou Storage)
         CheckArrivalToNPC();
         CheckArrivalToStorage();
     }
@@ -58,22 +55,16 @@ public class MainController : MonoBehaviour
 
         if (Physics.Raycast(ray, out hit, Mathf.Infinity))
         {
-            if (hit.collider.CompareTag(groundTag))
+            if (hit.collider.CompareTag("Ground"))
             {
                 agent.SetDestination(hit.point);
-                clickedOnNPC = false; // Reset da flag
-                clickedOnStorage = false; // Reset da flag
+                clickedOnNPC = false;
+                clickedOnStorage = false;
 
-                // Destrói o selection anterior, se existir
                 if (currentSelection != null)
-                {
                     Destroy(currentSelection);
-                }
 
-                // Define a rotação desejada (90 graus no eixo X)
                 Quaternion rotation = Quaternion.Euler(90f, 0f, 0f);
-
-                // Instancia o novo selection com a rotação ajustada
                 currentSelection = Instantiate(selectionPrefab, hit.point + new Vector3(0, 0.25f, 0), rotation);
                 StartCoroutine(AnimateSelection(currentSelection));
             }
@@ -82,29 +73,21 @@ public class MainController : MonoBehaviour
 
     private IEnumerator AnimateSelection(GameObject selection)
     {
-        float duration = 2f; // Duração total da animação
+        float duration = 2f;
         float elapsedTime = 0f;
         Vector3 initialScale = selection.transform.localScale;
 
         while (elapsedTime < duration)
         {
-            // Verifica se o objeto ainda existe
-            if (selection == null)
-            {
-                yield break; // Sai da corrotina se o objeto foi destruído
-            }
+            if (selection == null) yield break;
 
-            // Aumenta a escala em 1 cm por segundo
             selection.transform.localScale = initialScale + Vector3.one * (elapsedTime / duration);
             elapsedTime += Time.deltaTime;
             yield return null;
         }
 
-        // Verifica novamente se o objeto ainda existe antes de destruí-lo
         if (selection != null)
-        {
             Destroy(selection);
-        }
     }
 
     private void MoveToNPC()
@@ -113,19 +96,15 @@ public class MainController : MonoBehaviour
 
         if (Physics.Raycast(ray, out hit, Mathf.Infinity))
         {
-            if (hit.collider.CompareTag(npcTag))
+            if (hit.collider.CompareTag("NPC"))
             {
                 Vector3 npcPosition = hit.collider.transform.position;
-
-                // Calcula a direção e o ponto a 4 metros do NPC
                 Vector3 direction = (transform.position - npcPosition).normalized;
                 Vector3 targetPosition = npcPosition + direction * stopDistance;
 
-                // Configura o destino no NavMeshAgent
                 agent.SetDestination(targetPosition);
-
-                // Marca que foi clicado no NPC
                 clickedOnNPC = true;
+                clickedOnStorage = false; // garante que só um tipo é clicado
             }
         }
     }
@@ -136,19 +115,15 @@ public class MainController : MonoBehaviour
 
         if (Physics.Raycast(ray, out hit, Mathf.Infinity))
         {
-            if (hit.collider.CompareTag(storageTag))
+            if (hit.collider.CompareTag("Storage"))
             {
                 Vector3 storagePosition = hit.collider.transform.position;
-
-                // Calcula a direção e o ponto a 4 metros do storage
                 Vector3 direction = (transform.position - storagePosition).normalized;
                 Vector3 targetPosition = storagePosition + direction * stopDistance;
 
-                // Configura o destino no NavMeshAgent
                 agent.SetDestination(targetPosition);
-
-                // Marca que foi clicado no storage
                 clickedOnStorage = true;
+                clickedOnNPC = false; // garante que só um tipo é clicado
             }
         }
     }
@@ -157,9 +132,9 @@ public class MainController : MonoBehaviour
     {
         if (clickedOnNPC && !agent.pathPending && agent.remainingDistance <= stopDistance)
         {
-            // Envia um evento ou notifica que chegou perto do NPC
             hit.collider.GetComponent<DialogNPC>()?.StartConversation();
-            clickedOnNPC = false; // Reseta a flag para evitar iniciar a conversa várias vezes
+            clickedOnNPC = false;
+            StopAgentAndAnimation();
         }
     }
 
@@ -167,28 +142,45 @@ public class MainController : MonoBehaviour
     {
         if (clickedOnStorage && !agent.pathPending && agent.remainingDistance <= stopDistance)
         {
-            // Aqui você verifica se o storage foi clicado e está dentro do range
             Storage storageScript = hit.collider.GetComponent<Storage>();
             if (storageScript != null)
-            {
-                storageScript.OpenStorage(); // Chama a função para abrir o Storage
-            }
+                storageScript.OpenStorage();
 
-            clickedOnStorage = false; // Reseta a flag para não chamar novamente
+            clickedOnStorage = false;
+            StopAgentAndAnimation();
         }
     }
 
-    public void StopMovement()
+    private void StopAgentAndAnimation()
     {
         if (agent != null && agent.hasPath)
         {
             agent.ResetPath();
         }
 
+        if (animator != null)
+        {
+            animator.SetBool("Run", false);
+        }
+    }
+
+    public void StopMovement()
+    {
+        if (agent != null && agent.hasPath)
+            agent.ResetPath();
+
         if (currentSelection != null)
         {
             Destroy(currentSelection);
             currentSelection = null;
         }
+
+        if (animator != null)
+        {
+            animator.SetBool("Run", false);
+        }
+
+        clickedOnNPC = false;
+        clickedOnStorage = false;
     }
 }
