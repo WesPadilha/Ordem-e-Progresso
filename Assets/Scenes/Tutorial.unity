@@ -7581,6 +7581,18 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
+      - m_Target: {fileID: 2016097146}
+        m_TargetAssemblyTypeName: ShootButtonController, Assembly-CSharp
+        m_MethodName: OnButtonClick
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &378853725
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -10002,7 +10014,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   slider: {fileID: 1613015508}
-  maxLife: 10
+  maxLife: 20
   expAmount: 25
 --- !u!136 &479671719
 CapsuleCollider:
@@ -10123,7 +10135,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   agent: {fileID: 479671723}
-  maxActionPoints: 10
+  maxActionPoints: 8
 --- !u!114 &479671725
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -20383,6 +20395,7 @@ Transform:
   - {fileID: 1451656515}
   - {fileID: 539101823}
   - {fileID: 813052067}
+  - {fileID: 2016097145}
   m_Father: {fileID: 0}
   m_RootOrder: 14
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -27526,7 +27539,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   slider: {fileID: 257737972}
-  maxLife: 10
+  maxLife: 20
   expAmount: 25
 --- !u!114 &1191617631
 MonoBehaviour:
@@ -27555,7 +27568,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   agent: {fileID: 1191617633}
-  maxActionPoints: 10
+  maxActionPoints: 7
 --- !u!195 &1191617633
 NavMeshAgent:
   m_ObjectHideFlags: 0
@@ -44463,7 +44476,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   slider: {fileID: 553947461}
-  maxLife: 10
+  maxLife: 20
   expAmount: 25
 --- !u!114 &1953174148
 MonoBehaviour:
@@ -45997,6 +46010,50 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2009563258}
   m_CullTransparentMesh: 1
+--- !u!1 &2016097144
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2016097145}
+  - component: {fileID: 2016097146}
+  m_Layer: 0
+  m_Name: Attack
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &2016097145
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2016097144}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 865712350}
+  m_RootOrder: 7
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &2016097146
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2016097144}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2bdcccb3ee1ba534d93d7ba393ddcfef, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &2017211020
 GameObject:
   m_ObjectHideFlags: 0
@@ -47212,7 +47269,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   slider: {fileID: 139321070}
-  maxLife: 10
+  maxLife: 20
   expAmount: 25
 --- !u!114 &2054093693
 MonoBehaviour:
@@ -47227,7 +47284,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   agent: {fileID: 2054093694}
-  maxActionPoints: 10
+  maxActionPoints: 6
 --- !u!195 &2054093694
 NavMeshAgent:
   m_ObjectHideFlags: 0
@@ -47359,9 +47416,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   ponta: {fileID: 1402560754}
   prefabEnemyProjectile: {fileID: 353231357827436175, guid: de32c3463bd16ee4595b4ae31ec65af0, type: 3}
-  danoMin: 2
-  danoMax: 5
-  categoria: 0
+  danoMin: 3
+  danoMax: 6
+  categoria: 1
 --- !u!1 &2054262475
 GameObject:
   m_ObjectHideFlags: 0

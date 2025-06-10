@@ -8,7 +8,6 @@ public class ActionPointCostUI : MonoBehaviour
     public GameObject tooltipPanel;
     public TextMeshProUGUI tooltipText;
 
-    // Referência para o gerenciador de combate
     public CombatStateManager combatStateManager;
 
     void Update()
@@ -16,13 +15,11 @@ public class ActionPointCostUI : MonoBehaviour
         // Verifica se está em combate
         if (!combatStateManager.IsPlayerInCombat())
         {
-            // Não está em combate -> esconde tooltip e sai do Update
             if (tooltipPanel.activeSelf)
                 tooltipPanel.SetActive(false);
             return;
         }
 
-        // Está em combate -> ativa tooltip se não estiver ativo
         if (!tooltipPanel.activeSelf)
             tooltipPanel.SetActive(true);
 
@@ -31,39 +28,63 @@ public class ActionPointCostUI : MonoBehaviour
         RaycastHit[] hits = Physics.RaycastAll(ray, Mathf.Infinity);
 
         Vector3 targetPoint = Vector3.zero;
+        bool foundEnemy = false;
         bool foundGround = false;
 
-        // Procura pelo chão (Tag "Ground") entre os hits
-        foreach (RaycastHit hit in hits)
+        // Verifica se está no modo de mira
+        ShootButtonController shootButton = FindObjectOfType<ShootButtonController>();
+        bool isAiming = shootButton != null && shootButton.IsAiming();
+
+        if (isAiming)
         {
-            if (hit.collider.CompareTag("Ground"))
+            // Procura inimigo primeiro
+            foreach (RaycastHit hit in hits)
             {
-                targetPoint = hit.point;
-                foundGround = true;
-                break;
+                if (hit.collider.CompareTag("Enemy"))
+                {
+                    targetPoint = hit.point;
+                    foundEnemy = true;
+
+                    WeaponController weapon = FindObjectOfType<WeaponController>();
+                    if (weapon != null)
+                    {
+                        // Mostra custo fixo de PA da arma
+                        tooltipText.text = weapon.GetActionPointCost().ToString();
+                        tooltipPanel.transform.position = Input.mousePosition;
+                    }
+                    break;
+                }
             }
         }
 
-        // Se encontrou o chão
-        if (foundGround)
+        if (!foundEnemy)
         {
-            // Calcula a distância
-            float distance = Vector3.Distance(player.position, targetPoint);
+            // Procura o chão
+            foreach (RaycastHit hit in hits)
+            {
+                if (hit.collider.CompareTag("Ground"))
+                {
+                    targetPoint = hit.point;
+                    foundGround = true;
+                    break;
+                }
+            }
 
-            // Calcula PA (1 metro = 1 PA)
-            int pa = Mathf.FloorToInt(distance);
+            if (foundGround)
+            {
+                // Calcula distância até o ponto no chão
+                float distance = Vector3.Distance(player.position, targetPoint);
+                int pa = Mathf.FloorToInt(distance);
 
-            // Atualiza o texto
-            tooltipText.text = pa.ToString();
-
-            // Faz o painel seguir o mouse
-            tooltipPanel.transform.position = Input.mousePosition;
-        }
-        else
-        {
-            // Mostra PA como "--"
-            tooltipText.text = "--";
-            tooltipPanel.transform.position = Input.mousePosition;
+                tooltipText.text = pa.ToString();
+                tooltipPanel.transform.position = Input.mousePosition;
+            }
+            else
+            {
+                // Se não encontrou nada
+                tooltipText.text = "--";
+                tooltipPanel.transform.position = Input.mousePosition;
+            }
         }
     }
 }
