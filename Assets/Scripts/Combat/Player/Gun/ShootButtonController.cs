@@ -9,11 +9,16 @@ public class ShootButtonController : MonoBehaviour
     private GameObject player;
     private Animator playerAnimator;
     private Coroutine currentShootCoroutine;
+    private CombatStatusChecker combatStatusChecker;
+    private WeaponRangeRing weaponRangeRing;
+
 
     void Start()
     {
         mainCamera = Camera.main;
         player = GameObject.FindGameObjectWithTag("Player");
+        combatStatusChecker = FindObjectOfType<CombatStatusChecker>();
+        weaponRangeRing = FindObjectOfType<WeaponRangeRing>();
 
         if (player != null)
         {
@@ -33,46 +38,120 @@ public class ShootButtonController : MonoBehaviour
             {
                 if (hit.collider.CompareTag("Enemy"))
                 {
-                    aimingMode = false; // Desativa modo de mira imediatamente
-                    
-                    // Cancela qualquer corotina de disparo anterior
+                    aimingMode = false;
+
                     if (currentShootCoroutine != null)
                     {
                         StopCoroutine(currentShootCoroutine);
                     }
-                    
-                    currentShootCoroutine = StartCoroutine(RotateAndShoot(hit.point));
+
+                    currentShootCoroutine = StartCoroutine(RotateAndShoot(hit.point, hit.collider.gameObject));
                 }
+                else
+                {
+                    CancelAimingMode(); // Novo método para encapsular cancelamento
+                }
+            }
+            else
+            {
+                CancelAimingMode(); // Também cancela se não atingir nada
             }
         }
     }
 
     public void OnButtonClick()
     {
+        // Verifica se o player ainda existe
+        if (player == null)
+        {
+            Debug.LogWarning("Player não encontrado.");
+            return;
+        }
+
+        // Verifica se há uma arma equipada
+        WeaponController weapon = FindObjectOfType<WeaponController>();
+        if (weapon == null)
+        {
+            Debug.Log("Nenhuma arma equipada.");
+            return;
+        }
+
+        // Se estiver em combate, verifica pontos de ação
+        if (combatStatusChecker != null && combatStatusChecker.IsInCombat())
+        {
+            MovimentCombat playerMovement = player.GetComponent<MovimentCombat>();
+            if (playerMovement == null)
+            {
+                Debug.LogWarning("Componente MovimentCombat não encontrado no player.");
+                return;
+            }
+
+            if (playerMovement.GetCurrentActionPoints() < weapon.GetActionPointCost())
+            {
+                Debug.Log("Pontos de ação insuficientes para atirar.");
+                return;
+            }
+        }
+
         // Cancela qualquer ação de disparo em andamento
         if (currentShootCoroutine != null)
         {
             StopCoroutine(currentShootCoroutine);
             currentShootCoroutine = null;
         }
-        
+
         aimingMode = true;
         Debug.Log("Modo de mira ativado. Clique em um inimigo para atirar.");
+
+        if (weaponRangeRing != null)
+        {
+            weaponRangeRing.SetTargetAndRange(player.transform, weaponTypeToRange(weapon.weaponType));
+        }
+    }
+
+    private float weaponTypeToRange(WeaponController.WeaponType type)
+    {
+        return type == WeaponController.WeaponType.LongRange ? 15f : 10f;
     }
 
     public bool IsAiming()
     {
         return aimingMode;
     }
+    
+    private void CancelAimingMode()
+    {
+        aimingMode = false;
 
-    private IEnumerator RotateAndShoot(Vector3 targetPoint)
+        if (weaponRangeRing != null)
+        {
+            weaponRangeRing.Hide();
+        }
+
+        Debug.Log("Modo de mira cancelado.");
+    }
+
+
+    private IEnumerator RotateAndShoot(Vector3 targetPoint, GameObject enemyHit = null)
     {
         if (player == null)
             yield break;
 
         WeaponController weapon = FindObjectOfType<WeaponController>();
         if (weapon == null)
+        {
+            Debug.Log("Arma não encontrada durante o disparo.");
+            aimingMode = false;
             yield break;
+        }
+
+        // Verifica o alcance antes de qualquer ação, mesmo fora de combate
+        if (!weapon.CanShoot(targetPoint))
+        {
+            Debug.Log("Alvo fora do alcance da arma.");
+            aimingMode = false;
+            yield break;
+        }
 
         MovimentCombat playerMovement = player.GetComponent<MovimentCombat>();
         if (playerMovement == null)
@@ -84,17 +163,15 @@ public class ShootButtonController : MonoBehaviour
         // Espera um frame para garantir que o movimento foi parado
         yield return null;
 
-        int paCost = weapon.GetActionPointCost();
-        if (playerMovement.GetCurrentActionPoints() < paCost)
+        // Se estiver em combate, verifica pontos de ação
+        if (combatStatusChecker != null && combatStatusChecker.IsInCombat())
         {
-            Debug.Log("Pontos de ação insuficientes para atirar.");
-            yield break;
-        }
-
-        if (!weapon.CanShoot(targetPoint))
-        {
-            Debug.Log("Alvo fora do alcance da arma. Não será gasto PA nem disparado.");
-            yield break;
+            int paCost = weapon.GetActionPointCost();
+            if (playerMovement.GetCurrentActionPoints() < paCost)
+            {
+                Debug.Log("Pontos de ação insuficientes para atirar.");
+                yield break;
+            }
         }
 
         // Calcula direção para o alvo (ignorando diferença de altura)
@@ -103,14 +180,14 @@ public class ShootButtonController : MonoBehaviour
 
         // Rotaciona o jogador para o alvo
         Quaternion targetRotation = Quaternion.LookRotation(direction);
-        float rotationSpeed = 10f; // Velocidade mais rápida para rotação
-        float rotationThreshold = 1f; // Limiar de diferença para considerar rotação completa
+        float rotationSpeed = 10f;
+        float rotationThreshold = 1f;
 
         while (Quaternion.Angle(player.transform.rotation, targetRotation) > rotationThreshold)
         {
             player.transform.rotation = Quaternion.Slerp(
-                player.transform.rotation, 
-                targetRotation, 
+                player.transform.rotation,
+                targetRotation,
                 rotationSpeed * Time.deltaTime);
             yield return null;
         }
@@ -122,13 +199,33 @@ public class ShootButtonController : MonoBehaviour
         if (playerAnimator != null)
         {
             playerAnimator.SetBool("Attack", true);
-            // Espera um frame para garantir que a animação foi ativada
             yield return null;
         }
 
-        // Gasta pontos de ação e dispara
-        playerMovement.SpendActionPoints(paCost);
+        // Se estiver em combate, gasta pontos de ação
+        if (combatStatusChecker != null && combatStatusChecker.IsInCombat())
+        {
+            playerMovement.SpendActionPoints(weapon.GetActionPointCost());
+        }
+
+        yield return new WaitForSeconds(.08f);
+
+        // Dispara
         weapon.Shoot(targetPoint);
+
+        // Se acertou um inimigo e não está em combate, inicia o combate
+        if (enemyHit != null && (combatStatusChecker == null || !combatStatusChecker.IsInCombat()))
+        {
+            EnemyChase enemy = enemyHit.GetComponent<EnemyChase>();
+            if (enemy != null)
+            {
+                EnemyGroupController group = enemy.GetComponentInParent<EnemyGroupController>();
+                if (group != null)
+                {
+                    group.StartGroupChase();
+                }
+            }
+        }
 
         // Espera um tempo mínimo para a animação
         yield return new WaitForSeconds(0.5f);
@@ -139,6 +236,12 @@ public class ShootButtonController : MonoBehaviour
             playerAnimator.SetBool("Attack", false);
         }
 
+        aimingMode = false;
         currentShootCoroutine = null;
+
+        if (weaponRangeRing != null)
+        {
+            weaponRangeRing.Hide();
+        }
     }
 }

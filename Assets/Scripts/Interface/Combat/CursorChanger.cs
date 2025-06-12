@@ -28,7 +28,8 @@ public class CursorChanger : MonoBehaviour
 
     public void OnButtonClick()
     {
-        // Muda para cursor customizado
+        Vector2 hotspot = new Vector2(-20, customCursor.height - 20);
+
         Cursor.SetCursor(customCursor, Vector2.zero, CursorMode.Auto);
         isCustomCursorActive = true;
     }

@@ -21,8 +21,8 @@ public class Storage : MonoBehaviour
     private bool hasGivenXP = false;
 
     public Animator storageAnimator; // ⬅ Referência ao Animator
-    private readonly string openAnim = "abrir";
-    private readonly string closeAnim = "fechar";
+    private readonly string openAnim = "Abrir";
+    private readonly string closeAnim = "Fechar";
 
     private void OnMouseOver()
     {
@@ -58,8 +58,10 @@ public class Storage : MonoBehaviour
         // Ativa parâmetro Abrir e desativa Fechar
         if (storageAnimator != null)
         {
-            storageAnimator.SetBool("Abrir", true);
-            storageAnimator.SetBool("Fechar", false);
+            // Use as variáveis que você já declarou:
+            storageAnimator.SetBool(openAnim, true);
+            storageAnimator.SetBool(closeAnim, false);
+
         }
 
         storageUI.SetActive(true);
@@ -77,8 +79,9 @@ public class Storage : MonoBehaviour
         // Ativa parâmetro Fechar e desativa Abrir
         if (storageAnimator != null)
         {
-            storageAnimator.SetBool("Fechar", true);
-            storageAnimator.SetBool("Abrir", false);
+            storageAnimator.SetBool(closeAnim, true);
+            storageAnimator.SetBool(openAnim, false);
+
         }
 
         storageUI.SetActive(false);

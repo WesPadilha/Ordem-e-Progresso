@@ -5,6 +5,7 @@ public class BulletController : MonoBehaviour
     public float speed = 10f;
     public float damage = 10f;
     public float maxDistance = 10f;
+    public bool isCritical = false;
     
     private Vector3 direction;
     private Vector3 startPosition;
@@ -19,10 +20,10 @@ public class BulletController : MonoBehaviour
         direction = newDirection.normalized;
     }
 
-    // Novo método para definir o dano via arma
-    public void SetDamage(float value)
+    public void SetDamage(float value, bool critical)
     {
         damage = value;
+        isCritical = critical;
     }
 
     void Update()
@@ -42,11 +43,11 @@ public class BulletController : MonoBehaviour
             LifeEnemy lifeEnemy = other.GetComponent<LifeEnemy>();
             if (lifeEnemy != null)
             {
-                lifeEnemy.TakeDamage((int)damage);
+                lifeEnemy.TakeDamage((int)damage, isCritical);
             }
             Destroy(gameObject);
         }
-        else if (!other.CompareTag("Player") && !other.CompareTag("Weapon"))
+        else if (!other.CompareTag("Player"))// && !other.CompareTag("Weapon"))
         {
             Destroy(gameObject);
         }

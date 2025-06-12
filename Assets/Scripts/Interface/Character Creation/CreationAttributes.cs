@@ -35,6 +35,7 @@ public class CreationAttributes : MonoBehaviour
     public TMP_Text lifeText;
     public TMP_Text weightText;
     public TMP_Text actionPointsText;
+    public TMP_Text criticalChanceText;
 
     [Header("Buttons")]
     public Button increaseStrengthBtn;
@@ -274,6 +275,7 @@ public class CreationAttributes : MonoBehaviour
         lifeText.text = $"Vida: {CalculateMaxLife()}";
         weightText.text = $"Peso: {CalculateMaxWeight()}";
         actionPointsText.text = $"PA: {CalculateActionPoints()}";
+        criticalChanceText.text = $"Crítico: {luck}%";
 
         availablePointsText.text = "Pontos: " + availablePoints;
 

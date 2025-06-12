@@ -48,6 +48,8 @@ public class EnemyGroupController : MonoBehaviour
 
     public void RemoveEnemy(EnemyChase enemy)
     {
+        if (enemy == null) return;
+
         if (enemies.Contains(enemy))
         {
             enemies.Remove(enemy);
@@ -56,11 +58,15 @@ public class EnemyGroupController : MonoBehaviour
             // Verifica se o grupo foi totalmente eliminado
             if (enemies.Count == 0)
             {
+                // Não destruímos o grupo aqui - deixamos o TurnManager lidar com isso
+                isChasing = false;
+                
                 // Verifica se há outros grupos ativos
                 bool anyEnemiesLeft = false;
-                foreach (var group in FindObjectsOfType<EnemyGroupController>())
+                var allGroups = FindObjectsOfType<EnemyGroupController>();
+                foreach (var group in allGroups)
                 {
-                    if (group.enemies.Count > 0)
+                    if (group != null && group != this && group.enemies.Count > 0)
                     {
                         anyEnemiesLeft = true;
                         break;
@@ -68,13 +74,15 @@ public class EnemyGroupController : MonoBehaviour
                 }
                 
                 // Se não há mais inimigos em nenhum grupo, volta para o modo de exploração
-                if (!anyEnemiesLeft && controllerSwitcher != null)
+                if (!anyEnemiesLeft)
                 {
-                    controllerSwitcher.SwitchToMainController();
-                    Debug.Log("Todos os inimigos foram derrotados. Voltando para modo de exploração.");
+                    var controllerSwitcher = FindObjectOfType<PlayerControllerSwitcher>();
+                    if (controllerSwitcher != null)
+                    {
+                        controllerSwitcher.SwitchToMainController();
+                        Debug.Log("Todos os inimigos foram derrotados. Voltando para modo de exploração.");
+                    }
                 }
-                
-                Destroy(gameObject); // Opcional: destruir o grupo quando vazio
             }
         }
     }

@@ -12,12 +12,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 822e92d1704c24847a88747a81e3350b, type: 3}
   m_Name: StatusPlayer
   m_EditorClassIdentifier: 
-  strength: 0
+  strength: 10
   intellection: 0
-  luck: 0
+  luck: 10
   intelligence: 0
   charisma: 0
-  agility: 0
+  agility: 10
   arrombamento: 0
   atletismo: 0
   ciencias: 0
@@ -32,14 +32,14 @@ MonoBehaviour:
   negociacao: 0
   religiao: 0
   roubo: 0
-  currentLife: 0
-  maxLife: 0
-  actionPoints: 0
+  currentLife: 60
+  maxLife: 60
+  actionPoints: 10
   defense: 0
   damage: 0
   currentExperience: 0
-  maxExperience: 100
-  level: 0
-  currentWeight: 0
-  maxWeight: 0
-  availableSkillPoints: 0
+  maxExperience: 200
+  level: 1
+  currentWeight: 5
+  maxWeight: 100
+  availableSkillPoints: 20

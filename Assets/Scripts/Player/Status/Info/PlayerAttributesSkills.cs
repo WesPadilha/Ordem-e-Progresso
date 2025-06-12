@@ -36,6 +36,7 @@ public class PlayerAttributesSkills : MonoBehaviour
     public TMP_Text damageText;
     public TMP_Text levelText;
     public TMP_Text maxWeightText;
+    public TMP_Text criticoText; // Assuming this is the critical chance, but it should be renamed to avoid confusion
     
     [Header("Progressão UI References")]
     public TMP_Text availablePointsText;
@@ -93,6 +94,7 @@ public class PlayerAttributesSkills : MonoBehaviour
         damageText.text = $"Dano: {characterData.damage}";
         levelText.text = $"Nível: {characterData.level}";
         maxWeightText.text = $"Peso: {characterData.currentWeight}/{characterData.maxWeight}kg";
+        criticoText.text = $"Critico: {characterData.luck}%";
         
         availablePointsText.text = $"Pontos: {characterData.availableSkillPoints}";
     }

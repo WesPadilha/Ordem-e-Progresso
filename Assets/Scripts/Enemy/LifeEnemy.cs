@@ -7,22 +7,37 @@ public class LifeEnemy : MonoBehaviour
     public int maxLife = 10; // Vida máxima do inimigo
     private int currentLife; // Vida atual do inimigo
     public int expAmount = 25; // Quantidade de XP que o inimigo dá ao morrer
+    
+    private EnemyChase enemyChase;
+    private EnemyGroupController groupController;
 
     void Start()
     {
         currentLife = maxLife;
         slider.maxValue = maxLife;
         slider.value = currentLife;
+        
+        // Obtém as referências no Start
+        enemyChase = GetComponent<EnemyChase>();
+        groupController = GetComponentInParent<EnemyGroupController>();
     }
 
-    public void TakeDamage(int damage)
+    public void TakeDamage(int damage, bool isCritical)
     {
         currentLife -= damage;
-        slider.value = currentLife; // Atualiza o slider quando tomar dano
-        
+        slider.value = currentLife;
+
+        // Cria o popup de dano
+        DamagePopupPro.Create(transform.position, damage, isCritical);
+
         if (currentLife <= 0)
         {
             Die();
+        }
+        
+        if (enemyChase != null && !enemyChase.IsChasing() && groupController != null)
+        {
+            groupController.StartGroupChase();
         }
     }
 
@@ -33,6 +48,16 @@ public class LifeEnemy : MonoBehaviour
         {
             ExperienceManager.Instance.AddExperience(expAmount);
         }
+
+        // Notifica o groupController antes de destruir
+        EnemyGroupController groupController = GetComponentInParent<EnemyGroupController>();
+        EnemyChase enemyChase = GetComponent<EnemyChase>();
+        
+        if (groupController != null && enemyChase != null)
+        {
+            groupController.RemoveEnemy(enemyChase);
+        }
+
         Destroy(gameObject);
     }
 }

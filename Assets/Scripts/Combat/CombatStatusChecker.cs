@@ -12,6 +12,13 @@ public class CombatStatusChecker : MonoBehaviour
 
         return isPlayerInCombatMode && areEnemiesActive;
     }
+    
+    public bool CanShootOutsideCombat()
+    {
+        // Verifica se o player está fora de combate e tem uma arma equipada
+        WeaponController weapon = FindObjectOfType<WeaponController>();
+        return !IsInCombat() && weapon != null && weapon.CanShootAtEnemy();
+    }
 
     public bool IsPlayerInCombatMode()
     {

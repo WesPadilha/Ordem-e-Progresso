@@ -9,6 +9,7 @@ TagManager:
   - Storage
   - Chest
   - Enemy
+  - 'Weapon '
   layers:
   - Default
   - TransparentFX

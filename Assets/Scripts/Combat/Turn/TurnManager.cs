@@ -11,6 +11,9 @@ public class TurnManager : MonoBehaviour
     private int currentGroupIndex = 0;
     private int currentEnemyIndex = 0;
 
+    public delegate void TurnChangedHandler(TurnPhase phase, GameObject activeCharacter);
+    public event TurnChangedHandler OnTurnChanged;
+
     void Start()
     {
         StartPlayerTurn();
@@ -82,6 +85,7 @@ public class TurnManager : MonoBehaviour
         currentPhase = TurnPhase.Player;
         Debug.Log("Turno do Player começou.");
         playerMovement.ResetActionPoints();
+        OnTurnChanged?.Invoke(currentPhase, playerMovement.gameObject);
     }
 
     void StartEnemiesTurn()
@@ -103,15 +107,31 @@ public class TurnManager : MonoBehaviour
 
     void StartCurrentGroupTurn()
     {
-        if (currentGroupIndex < activeGroups.Count)
+        // Verifica se o índice é válido e se o grupo ainda existe
+        if (currentGroupIndex < activeGroups.Count && activeGroups[currentGroupIndex] != null)
         {
             var currentGroup = activeGroups[currentGroupIndex];
+            
+            // Verifica se o GameObject do grupo ainda existe
+            if (currentGroup.gameObject == null)
+            {
+                activeGroups.RemoveAt(currentGroupIndex);
+                StartCurrentGroupTurn(); // Tenta o próximo grupo
+                return;
+            }
+
             Debug.Log($"Turno do grupo {currentGroupIndex + 1} ({currentGroup.name}) começou.");
             
             if (currentEnemyIndex < currentGroup.enemies.Count)
             {
                 StartCurrentEnemyTurn();
             }
+        }
+        else if (currentGroupIndex < activeGroups.Count)
+        {
+            // Remove o grupo nulo da lista
+            activeGroups.RemoveAt(currentGroupIndex);
+            StartCurrentGroupTurn(); // Tenta o próximo grupo
         }
     }
 
@@ -125,6 +145,7 @@ public class TurnManager : MonoBehaviour
             Debug.Log($"Turno do Inimigo {currentEnemyIndex + 1} do grupo {currentGroupIndex + 1} começou.");
             currentEnemy.ResetActionPoints();
             currentEnemy.StartChasing();
+            OnTurnChanged?.Invoke(currentPhase, currentEnemy.gameObject);
         }
         else
         {
@@ -188,11 +209,13 @@ public class TurnManager : MonoBehaviour
     void EndEnemiesTurn()
     {
         CheckAllEnemiesDefeated();
+        OnTurnChanged?.Invoke(TurnPhase.Player, null); // Clear indicator
         StartPlayerTurn();
     }
 
     void CheckAllEnemiesDefeated()
     {
+        // Remove todos os grupos nulos ou destruídos
         activeGroups.RemoveAll(group => group == null || group.gameObject == null || group.enemies.Count == 0);
 
         if (activeGroups.Count == 0)

@@ -13,9 +13,9 @@ GameObject:
   - component: {fileID: 353231357827436161}
   - component: {fileID: 353231357827436174}
   - component: {fileID: 1031925704509329283}
-  - component: {fileID: 8300922487163241847}
+  - component: {fileID: 8829553093685843817}
   m_Layer: 0
-  m_Name: Bala player
+  m_Name: Bala enemy
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -115,7 +115,7 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 0
   m_CollisionDetection: 0
---- !u!114 &8300922487163241847
+--- !u!114 &8829553093685843817
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -124,9 +124,6 @@ MonoBehaviour:
   m_GameObject: {fileID: 353231357827436175}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 685a00a90215a4b4eb71968f46b99cd7, type: 3}
+  m_Script: {fileID: 11500000, guid: 1f53e146b29a98749bdfdcfbb895180f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  speed: 50
-  damage: 10
-  maxDistance: 20
