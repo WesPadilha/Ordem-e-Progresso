@@ -109,12 +109,75 @@ public class ItemContextMenu : MonoBehaviour
         {
             EquipItem();
         }
+        else if (currentSlot.ItemObject.type == ItemType.Ammo)
+        {
+            UseAmmoItem(); // Nova função para lidar com munição
+        }
         else
         {
             Debug.Log($"Este item não pode ser usado diretamente: {currentSlot.ItemObject.name}");
         }
         
         CloseAllPanels();
+    }
+
+    private void UseAmmoItem()
+    {
+        // Verificar se o jogador está segurando uma arma que usa este tipo de munição
+        WeaponController equippedWeapon = FindEquippedWeaponOfMatchingType(currentSlot.ItemObject.ammoType);
+        
+        if (equippedWeapon == null || equippedWeapon.weaponLoader == null)
+        {
+            Debug.Log("Nenhuma arma equipada que use este tipo de munição: " + currentSlot.ItemObject.ammoType);
+            return;
+        }
+
+        // Calcular quanta munição pode ser adicionada
+        int ammoNeeded = equippedWeapon.weaponLoader.ammoCapacity - equippedWeapon.weaponLoader.ammoCurrent;
+        int ammoAvailable = currentSlot.amount;
+        int ammoToUse = Mathf.Min(ammoNeeded, ammoAvailable);
+
+        if (ammoToUse <= 0)
+        {
+            Debug.Log("A arma já está totalmente carregada ou não precisa deste tipo de munição");
+            return;
+        }
+
+        // Adicionar munição à arma
+        equippedWeapon.weaponLoader.ammoCurrent += ammoToUse;
+        
+        // Remover munição do inventário
+        currentSlot.AddAmount(-ammoToUse);
+        
+        Debug.Log($"Recarregada arma com {ammoToUse} munições. Total agora: {equippedWeapon.weaponLoader.ammoCurrent}");
+
+        // Se acabou a munição no slot, remover o item
+        if (currentSlot.amount <= 0)
+        {
+            currentSlot.RemoveItem();
+        }
+    }
+
+    private WeaponController FindEquippedWeaponOfMatchingType(AmmoType ammoType)
+    {
+        // Encontrar todas as armas equipadas
+        StaticInterface equipmentUI = FindObjectOfType<StaticInterface>();
+        if (equipmentUI == null) return null;
+
+        foreach (var slot in equipmentUI.slotsOnInterface.Values)
+        {
+            if (slot.ItemObject != null && slot.ItemObject.type == ItemType.Weapon)
+            {
+                // Verificar se a arma está realmente equipada (no personagem)
+                WeaponController weapon = slot.ItemObject.characterDisplay?.GetComponent<WeaponController>();
+                if (weapon != null && weapon.requiredAmmoType == ammoType)
+                {
+                    return weapon;
+                }
+            }
+        }
+        
+        return null;
     }
 
     private void EquipItem()

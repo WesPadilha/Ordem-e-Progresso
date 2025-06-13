@@ -13,20 +13,23 @@ MonoBehaviour:
   m_Name: M1 Garand
   m_EditorClassIdentifier: 
   uiDisplay: {fileID: 21300000, guid: a15bc3c4d923d824c96b601fd54c4043, type: 3}
-  characterDisplay: {fileID: 0}
+  characterDisplay: {fileID: 7099356878205097023, guid: acded04cfd3e99345abd88a07ec9974a, type: 3}
   stackable: 0
   type: 2
-  description: 
+  description: "M1 Garand\n\nDano: 10 - 15\nCusto de PA: 6\nValor: R$ 170,00\nPeso:
+    8 kg\nMuni\xE7\xE3o: .690 mm"
   data:
     Name: M1 Garand
     Id: 4
     buffs:
     - attributesItem: 0
-      value: 50
-      min: 50
-      max: 50
+      value: 15
+      min: 15
+      max: 15
     weaponRangeType: 2
-  price: 20
-  weight: 1
+    ammoType: 0
+  price: 170
+  weight: 8
   weaponRangeType: 2
+  ammoType: 0
   boneNames: []

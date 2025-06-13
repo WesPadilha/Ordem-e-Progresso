@@ -10,20 +10,26 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 15193be7cccc46a4782427269ad8d0fc, type: 3}
-  m_Name: "Muni\xE7\xE3o"
+  m_Name: Muni .609mm
   m_EditorClassIdentifier: 
-  uiDisplay: {fileID: 21300000, guid: 6f81c244cbf9aa048976cc07698c26c0, type: 3}
+  uiDisplay: {fileID: 21300000, guid: 2b87f971caf795f49b36aa3c36565369, type: 3}
   characterDisplay: {fileID: 0}
   stackable: 1
   type: 4
-  description: 
+  description: '.609 mm
+
+
+    Valor: R$ 3,00/unidade
+
+    Peso: 0.1 kg'
   data:
     Name: 
-    Id: 3
+    Id: 5
     buffs: []
     weaponRangeType: 0
-  price: 2
-  weight: 1
+    ammoType: 1
+  price: 3
+  weight: 0.1
   weaponRangeType: 0
-  ammoType: 2
+  ammoType: 1
   boneNames: []

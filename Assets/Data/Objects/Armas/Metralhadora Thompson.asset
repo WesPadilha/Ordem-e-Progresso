@@ -16,15 +16,8 @@ MonoBehaviour:
   characterDisplay: {fileID: 7099356878205097023, guid: 987e106c721753a4c8379015243b2314, type: 3}
   stackable: 0
   type: 2
-  description: 'Metralhadora Thompson
-
-
-    Dano: 5 - 10
-
-    Custo de PA: 4
-
-    Valor:
-    R$ 150,00'
+  description: "Metralhadora Thompson\n\nDano: 5 - 10\nCusto de PA: 4\nValor: R$
+    150,00\nPeso: 5 kg\nMuni\xE7\xE3o: .45 mm"
   data:
     Name: Metralhadora Thompson
     Id: 0
@@ -34,9 +27,9 @@ MonoBehaviour:
       min: 10
       max: 10
     weaponRangeType: 2
+    ammoType: 0
   price: 150
   weight: 5
   weaponRangeType: 2
-  ammoCapacity: 30
-  ammoCurrent: 10
+  ammoType: 0
   boneNames: []

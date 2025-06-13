@@ -10,26 +10,28 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 15193be7cccc46a4782427269ad8d0fc, type: 3}
-  m_Name: Bolsa de sangue
+  m_Name: Muni .45 mm
   m_EditorClassIdentifier: 
-  uiDisplay: {fileID: 21300000, guid: fb1f3e2c63bff764983a604dcc2b8313, type: 3}
+  uiDisplay: {fileID: 21300000, guid: ca703d8b1348ceb4091231eb6c061a03, type: 3}
   characterDisplay: {fileID: 0}
   stackable: 1
-  type: 3
-  description: "Bolsa de Sangue\n\nCura: 10 Pontos\nPre\xE7o: R$ 35,00\nPeso: 0,5
-    kg\n"
+  type: 4
+  description: '.45 mm
+
+
+    Valor: R$ 2,00/unidade
+
+    Peso: 0.1 kg
+
+'
   data:
-    Name: Bolsa de sange
-    Id: 1
-    buffs:
-    - attributesItem: 2
-      value: 10
-      min: 10
-      max: 10
+    Name: 
+    Id: 3
+    buffs: []
     weaponRangeType: 0
-    ammoType: 0
-  price: 35
-  weight: 0.5
+    ammoType: 2
+  price: 2
+  weight: 0.1
   weaponRangeType: 0
-  ammoType: 0
+  ammoType: 2
   boneNames: []

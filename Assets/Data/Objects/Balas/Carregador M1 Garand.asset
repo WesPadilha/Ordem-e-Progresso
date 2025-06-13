@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: c7eb3edd9b96d48419dab937b1554d5b, type: 3}
-  m_Name: Carregador Thompson
+  m_Name: Carregador M1 Garand
   m_EditorClassIdentifier: 
-  ammoCapacity: 30
-  ammoCurrent: 30
+  ammoCapacity: 12
+  ammoCurrent: 12

@@ -13,6 +13,12 @@ public class WeaponController : MonoBehaviour
     public Transform firePoint;
     public float fireRate = 0.5f;
 
+    [Header("Dados de Munição")]
+    public WeaponLoader weaponLoader;
+
+    [Header("Tipo de Munição Aceita")]
+    public AmmoType requiredAmmoType = AmmoType.None; // <- Exemplo padrão
+
     [Header("Dano")]
     public float minDamage = 5f;
     public float maxDamage = 15f;
@@ -30,7 +36,7 @@ public class WeaponController : MonoBehaviour
 
     public int GetActionPointCost()
     {
-        return weaponType == WeaponType.LongRange ? 7 : 4;
+        return weaponType == WeaponType.LongRange ? 6 : 4;
     }
 
     public bool CanShootAtEnemy()
@@ -56,17 +62,29 @@ public class WeaponController : MonoBehaviour
 
     public void Shoot(Vector3 targetPosition)
     {
-        if (Time.time >= nextFireTime && firePoint != null && CanShoot(targetPosition))
+        if (Time.time < nextFireTime || firePoint == null || !CanShoot(targetPosition) || weaponLoader == null)
+            return;
+
+        // Aqui adicionamos a verificação de tipo de munição
+        if (weaponLoader is WeaponLoaderWithType loaderWithType)
         {
-            if (weaponCategory == WeaponCategory.MachineGun)
-            {
-                StartCoroutine(ShootMachineGun(targetPosition, 5));
-            }
-            else
-            {
-                ShootSingleBullet(targetPosition);
-                nextFireTime = Time.time + fireRate;
-            }
+            if (loaderWithType.ammoType != requiredAmmoType)
+                return; // Tipo de munição errado
+        }
+
+        if (weaponCategory == WeaponCategory.MachineGun)
+        {
+            int bulletsCount = 5;
+            if (weaponLoader.ammoCurrent < bulletsCount) return;
+            weaponLoader.ammoCurrent -= bulletsCount;
+            StartCoroutine(ShootMachineGun(targetPosition, bulletsCount));
+        }
+        else
+        {
+            if (weaponLoader.ammoCurrent < 1) return;
+            weaponLoader.ammoCurrent--;
+            ShootSingleBullet(targetPosition);
+            nextFireTime = Time.time + fireRate;
         }
     }
 

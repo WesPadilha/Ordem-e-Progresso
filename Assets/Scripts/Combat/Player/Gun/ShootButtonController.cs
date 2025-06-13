@@ -153,6 +153,14 @@ public class ShootButtonController : MonoBehaviour
             yield break;
         }
 
+        // Verifica se a arma tem munição, qualquer coisa comenta esta linha
+        if (weapon.weaponLoader == null || weapon.weaponLoader.ammoCurrent <= 0)
+        {
+            Debug.Log("Sem munição. Disparo cancelado.");
+            aimingMode = false;
+            yield break;
+        }
+
         MovimentCombat playerMovement = player.GetComponent<MovimentCombat>();
         if (playerMovement == null)
             yield break;

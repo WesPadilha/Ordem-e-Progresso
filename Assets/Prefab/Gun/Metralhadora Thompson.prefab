@@ -29,37 +29,6 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 7624079442567253637}
-  m_RootOrder: 2
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!1 &1452447687985701290
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 62060386990364460}
-  m_Layer: 0
-  m_Name: Empty
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &62060386990364460
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1452447687985701290}
-  m_LocalRotation: {x: 0.000000081460335, y: 0, z: -0, w: 1}
-  m_LocalPosition: {x: -0, y: -0, z: 0}
-  m_LocalScale: {x: 150.28253, y: 150.28253, z: 150.28253}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 7624079442567253637}
   m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &7099356878205097023
@@ -73,7 +42,7 @@ GameObject:
   - component: {fileID: 7624079442567253637}
   - component: {fileID: 6373093294023207131}
   m_Layer: 0
-  m_Name: 'Metralhadora Thompson '
+  m_Name: Metralhadora Thompson
   m_TagString: 'Weapon '
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -92,7 +61,6 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 6755273314751043040}
-  - {fileID: 62060386990364460}
   - {fileID: 7781851585543814600}
   m_Father: {fileID: 0}
   m_RootOrder: 0
@@ -114,9 +82,10 @@ MonoBehaviour:
   bulletPrefab: {fileID: 353231357827436175, guid: ac704c18150d7ec4aa2bfb675f8287db, type: 3}
   firePoint: {fileID: 7781851585543814600}
   fireRate: 0.5
+  weaponLoader: {fileID: 11400000, guid: 7701b00f69a55a34494eae04d914f8ae, type: 2}
+  requiredAmmoType: 2
   minDamage: 5
   maxDamage: 10
-  weaponLoader: {fileID: 11400000, guid: 7ef410d26751f80478cf46a49737f84b, type: 2}
   characterData: {fileID: 11400000, guid: b82bf8400262e254ea68fa5bb87e4e4d, type: 2}
 --- !u!1 &7334377158458678026
 GameObject:

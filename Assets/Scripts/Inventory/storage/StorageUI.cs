@@ -19,22 +19,49 @@ public class StorageUI : MonoBehaviour
     // Distribui os itens aleatoriamente nos slots
     private void DistributeItems()
     {
-        for (int i = 0; i < slots.Length; i++)
+        foreach (ItemObject item in items)
         {
-            if (i < items.Length && items[i] != null) // Verifica se há um item no array
+            if (item == null) continue;
+
+            bool added = false;
+
+            if (item.stackable)
             {
-                // Define o item e o ícone no slot
-                slots[i].GetComponent<StorageSlot>().SetItem(items[i]);
+                foreach (var slotObj in slots)
+                {
+                    var slot = slotObj.GetComponent<StorageSlot>();
+                    if (slot.GetItem() == item)
+                    {
+                        slot.SetItem(item, 1);
+                        added = true;
+                        break;
+                    }
+                }
             }
-            else
+
+            if (!added)
             {
-                // Se não houver itens suficientes, define o slot como vazio com a imagem padrão
-                slots[i].GetComponent<StorageSlot>().ClearSlot(defaultIcon);
+                foreach (var slotObj in slots)
+                {
+                    var slot = slotObj.GetComponent<StorageSlot>();
+                    if (slot.GetItem() == null)
+                    {
+                        slot.SetItem(item, 1);
+                        break;
+                    }
+                }
             }
         }
-    }
 
-    // Método para transferir o item do slot para o inventário do jogador
+        // Preenche os slots restantes com imagem padrão
+        foreach (var slotObj in slots)
+        {
+            var slot = slotObj.GetComponent<StorageSlot>();
+            if (slot.GetItem() == null)
+                slot.ClearSlot(defaultIcon);
+        }
+    }
+    
     public void TransferItemToInventory(ItemObject item)
     {
         if (item != null)

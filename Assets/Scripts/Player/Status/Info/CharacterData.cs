@@ -40,8 +40,8 @@ public class CharacterData : ScriptableObject
     public int currentExperience;
     public int maxExperience = 100;
     public int level = 0;
-    public int currentWeight;
-    public int maxWeight;
+    public float currentWeight;
+    public float maxWeight;
 
     [Header("Progressão")]
     public int availableSkillPoints = 0;

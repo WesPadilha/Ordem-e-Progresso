@@ -47,7 +47,7 @@ public class InventoryWeightManager : MonoBehaviour
 
     public void CalculateTotalWeight()
     {
-        int totalWeight = 0;
+        float totalWeight = 0f;
         
         foreach (InventorySlot slot in playerInventory.GetSlots)
         {

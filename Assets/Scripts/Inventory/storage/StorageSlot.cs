@@ -1,11 +1,15 @@
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
+using TMPro;
 
 public class StorageSlot : MonoBehaviour, IPointerClickHandler
 {
-    public Image icon; // Referência ao componente Image do slot
-    private ItemObject item; // Item associado ao slot
+    public Image icon;
+    public TextMeshProUGUI quantityText;
+
+    private ItemObject item;
+    private int quantity = 0;
 
     private StorageUI storageUI;
 
@@ -14,32 +18,54 @@ public class StorageSlot : MonoBehaviour, IPointerClickHandler
         storageUI = GetComponentInParent<StorageUI>();
     }
 
-    // Define o item no slot
-    public void SetItem(ItemObject newItem)
+    public void SetItem(ItemObject newItem, int amount = 1)
     {
-        item = newItem;
-        if (item != null && item.uiDisplay != null) // Verifica se o item e o ícone são válidos
+        if (item != null && item == newItem && item.stackable)
         {
-            icon.sprite = item.uiDisplay; // Define o ícone do item
-            icon.enabled = true; // Ativa a exibição do ícone
+            quantity += amount;
         }
+        else
+        {
+            item = newItem;
+            quantity = amount;
+        }
+
+        if (item != null && item.uiDisplay != null)
+        {
+            icon.sprite = item.uiDisplay;
+            icon.enabled = true;
+        }
+
+        UpdateQuantityText();
     }
 
-    // Limpa o slot e define a imagem padrão
     public void ClearSlot(Sprite defaultIcon)
     {
         item = null;
-        icon.sprite = defaultIcon; // Define a imagem padrão
-        icon.enabled = true; // Mantém a imagem visível
+        quantity = 0;
+        icon.sprite = defaultIcon;
+        icon.enabled = true;
+        UpdateQuantityText();
     }
 
-    // Quando o slot é clicado, transfere o item para o inventário do jogador
     public void OnPointerClick(PointerEventData eventData)
     {
         if (item != null)
         {
-            storageUI.TransferItemToInventory(item); // Transfere o item para o inventário
-            ClearSlot(storageUI.defaultIcon); // Limpa o slot e define a imagem padrão
+            storageUI.TransferItemToInventory(item);
+            quantity--;
+            if (quantity <= 0)
+                ClearSlot(storageUI.defaultIcon);
+            else
+                UpdateQuantityText();
         }
+    }
+
+    public ItemObject GetItem() => item;
+    public int GetQuantity() => quantity;
+
+    private void UpdateQuantityText()
+    {
+        quantityText.text = (item != null && item.stackable && quantity > 1) ? quantity.ToString() : "";
     }
 }
