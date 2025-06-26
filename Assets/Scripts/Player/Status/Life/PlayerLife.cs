@@ -1,6 +1,8 @@
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
+using UnityEngine.SceneManagement;
+using System.Collections;
 
 public class PlayerLife : MonoBehaviour
 {
@@ -9,6 +11,11 @@ public class PlayerLife : MonoBehaviour
     public TMP_Text lifeText;
     public AvoidDamageUI avoidDamageUI; 
     public bool IsInvulnerable { get; set; } = false;
+    
+    [Header("Game Over Settings")]
+    public float gameOverDelay = 1.5f; // Tempo de delay antes de carregar a cena
+    private bool isGameOverTriggered = false;
+    private Coroutine gameOverCoroutine;
 
     void Start()
     {
@@ -26,11 +33,40 @@ public class PlayerLife : MonoBehaviour
         {
             characterData.OnLifeChanged -= OnCharacterLifeChanged;
         }
+        
+        // Para a coroutine se o objeto for destruído
+        if (gameOverCoroutine != null)
+        {
+            StopCoroutine(gameOverCoroutine);
+        }
     }
 
     private void OnCharacterLifeChanged()
     {
         UpdateLifeUI();
+        
+        // Verifica se a vida chegou a zero e o game over ainda não foi acionado
+        if (characterData.currentLife <= 0 && !isGameOverTriggered)
+        {
+            isGameOverTriggered = true;
+            gameOverCoroutine = StartCoroutine(GameOverWithDelay());
+        }
+    }
+
+    private IEnumerator GameOverWithDelay()
+    {
+        // Espera o tempo de delay antes de carregar a cena
+        yield return new WaitForSeconds(gameOverDelay);
+        
+        // Verifica novamente se a vida ainda está zerada (para evitar casos de cura durante o delay)
+        if (characterData.currentLife <= 0)
+        {
+            SceneManager.LoadScene("GameOver");
+        }
+        else
+        {
+            isGameOverTriggered = false;
+        }
     }
 
     public void UpdateLifeUI()
@@ -67,7 +103,6 @@ public class PlayerLife : MonoBehaviour
             return;
         }
 
-
         // Converte defense em porcentagem e calcula redução
         float defenseReduction = Mathf.Clamp(characterData.defense, 0, 100) / 100f;
         int reducedDamage = Mathf.CeilToInt(damage * (1f - defenseReduction));
@@ -93,6 +128,16 @@ public class PlayerLife : MonoBehaviour
         characterData.SetCurrentLife(newLife);
 
         Debug.Log($"Curou {actualHeal} pontos de vida (Total: {characterData.currentLife}/{characterData.maxLife})");
+        
+        // Se curou durante o delay do game over, cancela o game over
+        if (newLife > 0 && isGameOverTriggered)
+        {
+            if (gameOverCoroutine != null)
+            {
+                StopCoroutine(gameOverCoroutine);
+            }
+            isGameOverTriggered = false;
+        }
     }
 
     public void RestoreFullLife()
@@ -100,5 +145,15 @@ public class PlayerLife : MonoBehaviour
         if (characterData == null) return;
 
         characterData.SetCurrentLife(characterData.maxLife);
+        
+        // Se restaurou vida durante o delay do game over, cancela o game over
+        if (isGameOverTriggered)
+        {
+            if (gameOverCoroutine != null)
+            {
+                StopCoroutine(gameOverCoroutine);
+            }
+            isGameOverTriggered = false;
+        }
     }
 }

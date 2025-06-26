@@ -3,6 +3,7 @@ using UnityEngine;
 
 public class Storage : MonoBehaviour
 {
+    public string uniqueID;
     public GameObject storageUI;
     public ScreenController screenController;
     public Transform player;
@@ -18,7 +19,7 @@ public class Storage : MonoBehaviour
 
     private Vector3 originalCameraPosition;
     private Quaternion originalCameraRotation;
-    private bool hasGivenXP = false;
+    public bool hasGivenXP = false;
 
     public Animator storageAnimator; // ⬅ Referência ao Animator
     private readonly string openAnim = "Abrir";
@@ -33,6 +34,16 @@ public class Storage : MonoBehaviour
         {
             OpenStorage();
         }
+    }
+
+    public bool HasGivenXP()
+    {
+        return hasGivenXP;
+    }
+
+    public void SetHasGivenXP(bool value)
+    {
+        hasGivenXP = value;
     }
 
     public void OpenStorage()

@@ -38,7 +38,7 @@ public class CharacterData : ScriptableObject
     public int defense;
     public int damage;
     public int currentExperience;
-    public int maxExperience = 100;
+    public int maxExperience = 300;
     public int level = 0;
     public float currentWeight;
     public float maxWeight;
@@ -48,8 +48,12 @@ public class CharacterData : ScriptableObject
 
     public void Initialize()
     {
-        maxLife = CalculateMaxLife(strength);
-        currentLife = maxLife;
+        // Apenas define currentLife = maxLife se ainda não tiver sido definido (ou estiver inválido)
+        if (currentLife <= 0 || currentLife > maxLife)
+        {
+            currentLife = maxLife;
+        }
+
         maxWeight = CalculateMaxWeight(strength);
         currentWeight = 0; // Inicia com 0 de peso
         actionPoints = CalculateActionPoints(agility);
@@ -92,7 +96,7 @@ public class CharacterData : ScriptableObject
 
         level++;
         currentExperience -= maxExperience;
-        maxExperience += 100;
+        maxExperience = 300 * (level + 1);
 
         int bonusLife = Mathf.RoundToInt(0.2f * strength * 10);
         int previousMaxLife = maxLife;
@@ -193,15 +197,50 @@ public class CharacterData : ScriptableObject
         int negotiationBonus = Mathf.Min(negociacao / 10, 10); // Máximo de 10 níveis (100 pontos)
         return 1f + (negotiationBonus * 0.05f); // Retorna um multiplicador (1.05, 1.10, etc.)
     }
-    
+
     public void AddNegotiationPoints(int points)
     {
         int oldNegotiation = negociacao;
         negociacao = Mathf.Min(negociacao + points, 100); // Máximo de 100 pontos
-        
-        if(negociacao != oldNegotiation)
+
+        if (negociacao != oldNegotiation)
         {
             NotifyChanges(); // Dispara o evento de mudança
         }
+    }
+    public void ResetData()
+    {
+        strength = 0;
+        intellection = 0;
+        luck = 0;
+        intelligence = 0;
+        charisma = 0;
+        agility = 0;
+
+        arrombamento = 0;
+        atletismo = 0;
+        ciencias = 0;
+        diplomacia = 0;
+        eletrica = 0;
+        furtividade = 0;
+        geografia = 0;
+        idiomas = 0;
+        intuicao = 0;
+        medicina = 0;
+        mecanica = 0;
+        negociacao = 0;
+        religiao = 0;
+        roubo = 0;
+
+        currentLife = 0;
+        currentWeight = 0;
+        maxWeight = 0;
+        actionPoints = 0;
+        currentExperience = 0;
+        maxExperience = 300;
+        level = 0;
+        availableSkillPoints = 0;
+        
+        NotifyLifeChanged();
     }
 }

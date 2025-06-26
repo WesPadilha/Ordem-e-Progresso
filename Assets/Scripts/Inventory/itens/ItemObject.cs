@@ -9,6 +9,7 @@ public enum ItemType
     Weapon,
     consumables,
     Ammo,
+    Quest,
     Default
 }
 

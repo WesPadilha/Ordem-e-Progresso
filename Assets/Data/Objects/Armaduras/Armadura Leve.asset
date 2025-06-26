@@ -18,7 +18,7 @@ MonoBehaviour:
   type: 0
   description: "Armadura Leve\n\nDefesa: 10%\nPre\xE7o: R$ 70,00\nPeso: 10 kg"
   data:
-    Name: Armor
+    Name: Armadura Leve
     Id: 2
     buffs:
     - attributesItem: 1

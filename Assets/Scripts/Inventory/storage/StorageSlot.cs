@@ -52,12 +52,20 @@ public class StorageSlot : MonoBehaviour, IPointerClickHandler
     {
         if (item != null)
         {
-            storageUI.TransferItemToInventory(item);
-            quantity--;
-            if (quantity <= 0)
+            if (item.stackable)
+            {
+                storageUI.TransferItemToInventory(item, quantity); // Transfere tudo
                 ClearSlot(storageUI.defaultIcon);
+            }
             else
-                UpdateQuantityText();
+            {
+                storageUI.TransferItemToInventory(item, 1);
+                quantity--;
+                if (quantity <= 0)
+                    ClearSlot(storageUI.defaultIcon);
+                else
+                    UpdateQuantityText();
+            }
         }
     }
 

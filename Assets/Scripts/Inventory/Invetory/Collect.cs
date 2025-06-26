@@ -75,11 +75,33 @@ public class Collect : MonoBehaviour
         }
     }
 
+    private void RecalculateCharacterData()
+    {
+        int totalDamage = 0;
+        int totalDefense = 0;
+
+        foreach (var attribute in attributes)
+        {
+            if (attribute.type == AttributesItem.damage)
+            {
+                totalDamage = attribute.value.ModifiedValue; // Valor final com mods
+            }
+            else if (attribute.type == AttributesItem.defense)
+            {
+                totalDefense = attribute.value.ModifiedValue;
+            }
+        }
+
+        characterData.damage = totalDamage;
+        characterData.defense = totalDefense;
+        characterData.NotifyChanges();
+    }
+
     public void OnRemoveItem(InventorySlot _slot)
     {
         if (_slot.ItemObject == null)
             return;
-            
+
         switch (_slot.parent.inventory.type)
         {
             case InterfaceType.Equipment:
@@ -90,10 +112,11 @@ public class Collect : MonoBehaviour
                         if (attributes[j].type == _slot.item.buffs[i].attributesItem)
                         {
                             attributes[j].value.RemoveModifier(_slot.item.buffs[i]);
-                            UpdateCharacterData(_slot.item.buffs[i], false);
+                            //UpdateCharacterData(_slot.item.buffs[i], false);
                         }
                     }
                 }
+                RecalculateCharacterData();
 
                 if (_slot.ItemObject.characterDisplay != null)
                 {
@@ -134,10 +157,11 @@ public class Collect : MonoBehaviour
                         if (attributes[j].type == _slot.item.buffs[i].attributesItem)
                         {
                             attributes[j].value.AddModifier(_slot.item.buffs[i]);
-                            UpdateCharacterData(_slot.item.buffs[i], true);
+                            //UpdateCharacterData(_slot.item.buffs[i], true);
                         }
                     }
                 }
+                RecalculateCharacterData();
 
                 if (_slot.ItemObject.characterDisplay != null)
                 {

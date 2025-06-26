@@ -9,11 +9,28 @@ public class StorageUI : MonoBehaviour
     public ItemObject[] items; // Lista de itens que podem ser colocados no armazenamento
     public GameObject[] slots; // Array de slots no armazenamento
     public Sprite defaultIcon; // Imagem padrão para slots vazios
+    public CollectableStorage collectableStorage; 
 
     void Start()
     {
-        // Distribui os itens aleatoriamente nos slots
-        DistributeItems();
+        // Só distribui se ainda não foi coletado
+        if (!collectableStorage.alreadyCollected)
+        {
+            DistributeItems();
+        }
+        else
+        {
+            ClearAllSlots(); // <- limpa todos os slots
+        }
+    }
+
+    private void ClearAllSlots()
+    {
+        foreach (var slotObj in slots)
+        {
+            var slot = slotObj.GetComponent<StorageSlot>();
+            slot.ClearSlot(defaultIcon);
+        }
     }
 
     // Distribui os itens aleatoriamente nos slots
@@ -61,12 +78,13 @@ public class StorageUI : MonoBehaviour
                 slot.ClearSlot(defaultIcon);
         }
     }
-    
-    public void TransferItemToInventory(ItemObject item)
+
+    public void TransferItemToInventory(ItemObject item, int amount = 1)
     {
         if (item != null)
         {
-            playerInventory.AddItem(new Item(item), 1);
+            playerInventory.AddItem(new Item(item), amount);
+            collectableStorage.MarkCollected(); // Marca como coletado
         }
     }
 }

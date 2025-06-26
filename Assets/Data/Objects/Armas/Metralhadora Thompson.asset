@@ -16,8 +16,8 @@ MonoBehaviour:
   characterDisplay: {fileID: 7099356878205097023, guid: 987e106c721753a4c8379015243b2314, type: 3}
   stackable: 0
   type: 2
-  description: "Metralhadora Thompson\n\nDano: 5 - 10\nCusto de PA: 4\nValor: R$
-    150,00\nPeso: 5 kg\nMuni\xE7\xE3o: .45 mm"
+  description: "Metralhadora Thompson\n\nDano: 5 - 10\nCusto de PA: 4\nMuni\xE7\xE3o:
+    .45 mm\nValor: R$ 150,00\nPeso: 5 kg"
   data:
     Name: Metralhadora Thompson
     Id: 0

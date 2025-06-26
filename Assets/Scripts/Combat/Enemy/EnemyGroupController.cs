@@ -8,9 +8,17 @@ public class EnemyGroupController : MonoBehaviour
     private PlayerControllerSwitcher controllerSwitcher;
     private TurnManager turnManager;
 
+    [Header("NPC Components")]
+    public DialogNPC dialogNPCScript;
+    public NPCOrientationController npcOrientationControllerScript;
+
+    [Header("Enemy Components")]
+    public DetectionImage detectionImageScript;
+    public PlayerProximityDetector proximityDetectorScript;
+
     void Start()
     {
-        enemies.AddRange(GetComponentsInChildren<EnemyChase>());
+        enemies.AddRange(GetComponentsInChildren<EnemyChase>(true)); // Inclui inativos
         controllerSwitcher = FindObjectOfType<PlayerControllerSwitcher>();
         turnManager = FindObjectOfType<TurnManager>();
 
@@ -32,9 +40,36 @@ public class EnemyGroupController : MonoBehaviour
             isChasing = true;
             turnManager.RegisterEnemyGroup(this);
 
+            // Desativa scripts de NPC para todos os inimigos do grupo
+            if (dialogNPCScript != null)
+            {
+                dialogNPCScript.enabled = false;
+            }
+
+            if (npcOrientationControllerScript != null)
+            {
+                npcOrientationControllerScript.enabled = false;
+            }
+
+            // Ativa componentes de inimigo para todos do grupo
             foreach (var enemy in enemies)
             {
-                enemy.ResetActionPoints();
+                if (enemy != null)
+                {
+                    enemy.enabled = true;
+                    enemy.ResetActionPoints();
+
+                    // Ativa componentes adicionais se existirem
+                    if (detectionImageScript != null)
+                    {
+                        detectionImageScript.enabled = true;
+                    }
+
+                    if (proximityDetectorScript != null)
+                    {
+                        proximityDetectorScript.enabled = true;
+                    }
+                }
             }
 
             if (controllerSwitcher != null)
@@ -42,7 +77,7 @@ public class EnemyGroupController : MonoBehaviour
                 controllerSwitcher.SwitchControllers();
             }
 
-            Debug.Log($"Grupo {gameObject.name} começou a perseguir o player!");
+            Debug.Log($"Grupo {gameObject.name} começou a perseguir o player! Todos os inimigos ativados.");
         }
     }
 
@@ -55,13 +90,10 @@ public class EnemyGroupController : MonoBehaviour
             enemies.Remove(enemy);
             Debug.Log($"Inimigo removido do grupo {name}. Inimigos restantes: {enemies.Count}");
             
-            // Verifica se o grupo foi totalmente eliminado
             if (enemies.Count == 0)
             {
-                // Não destruímos o grupo aqui - deixamos o TurnManager lidar com isso
                 isChasing = false;
                 
-                // Verifica se há outros grupos ativos
                 bool anyEnemiesLeft = false;
                 var allGroups = FindObjectsOfType<EnemyGroupController>();
                 foreach (var group in allGroups)
@@ -73,7 +105,6 @@ public class EnemyGroupController : MonoBehaviour
                     }
                 }
                 
-                // Se não há mais inimigos em nenhum grupo, volta para o modo de exploração
                 if (!anyEnemiesLeft)
                 {
                     var controllerSwitcher = FindObjectOfType<PlayerControllerSwitcher>();
@@ -90,5 +121,22 @@ public class EnemyGroupController : MonoBehaviour
     public bool IsGroupChasing()
     {
         return isChasing;
+    }
+
+    // Método para adicionar um inimigo ao grupo dinamicamente
+    public void AddEnemy(EnemyChase newEnemy)
+    {
+        if (!enemies.Contains(newEnemy))
+        {
+            enemies.Add(newEnemy);
+            Debug.Log($"Novo inimigo adicionado ao grupo {name}. Total: {enemies.Count}");
+
+            // Se o grupo já estiver em perseguição, ativa o novo inimigo imediatamente
+            if (isChasing)
+            {
+                newEnemy.enabled = true;
+                newEnemy.ResetActionPoints();
+            }
+        }
     }
 }

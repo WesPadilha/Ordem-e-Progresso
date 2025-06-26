@@ -45,7 +45,8 @@ public class ShootButtonController : MonoBehaviour
                         StopCoroutine(currentShootCoroutine);
                     }
 
-                    currentShootCoroutine = StartCoroutine(RotateAndShoot(hit.point, hit.collider.gameObject));
+                    Vector3 targetCenter = hit.collider.bounds.center + Vector3.up * 0.1f;
+                    currentShootCoroutine = StartCoroutine(RotateAndShoot(targetCenter, hit.collider.gameObject));
                 }
                 else
                 {

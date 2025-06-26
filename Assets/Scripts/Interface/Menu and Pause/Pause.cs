@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using DialogueEditor;
+using UnityEngine.UI;
 public class Pause : MonoBehaviour
 {
     public static bool GameIsPaused = false;
@@ -8,9 +9,13 @@ public class Pause : MonoBehaviour
     [SerializeField] private GameObject Option;
     [SerializeField] private GameObject Resolution;
     [SerializeField] private GameObject Sound;
+    [SerializeField] private GameObject Save;
+    [SerializeField] private GameObject Load;
     [SerializeField] private GameObject ExitGame;
     [SerializeField] private GameObject[] MainButton;
     [SerializeField] private ScreenController screenController; // Arraste o ScreenController no Inspector
+    [SerializeField] private CombatStatusChecker combatStatusChecker;
+    [SerializeField] private Button saveButton;
 
     public DialogNPC dialogNPC; // Referência para o script de diálogo (assegure-se de arrastar no inspector)
 
@@ -20,30 +25,39 @@ public class Pause : MonoBehaviour
         Time.timeScale = 1f; // Certifica que o jogo não está pausado
     }
 
-
     void Update()
     {
+        if (combatStatusChecker != null && saveButton != null)
+        {
+            bool inCombat = combatStatusChecker.IsInCombat();
+            saveButton.interactable = !inCombat;
+
+            ColorBlock colors = saveButton.colors;
+            if (inCombat)
+            {
+                colors.normalColor = new Color(0.3f, 0.3f, 0.3f); // Cinza escuro
+            }
+            else
+            {
+                colors.normalColor = Color.white; // Cor padrão
+            }
+            saveButton.colors = colors;
+        }
+
         if (Input.GetKeyDown(KeyCode.Escape))
         {
-            // Fecha qualquer interface aberta
             CloseActiveUI();
 
             if (AnyOptionActive())
             {
-                // Fecha qualquer menu aberto (Opções, Resolução, Som, Sair)
                 CloseAllOptions();
             }
             else
             {
-                // Alterna entre pausar e retomar o jogo
                 if (GameIsPaused)
-                {
                     Resume();
-                }
                 else
-                {
                     PauseGame();
-                }
             }
         }
     }
@@ -73,6 +87,36 @@ public class Pause : MonoBehaviour
         Option.SetActive(false);
         StartMainButton();
     }
+    
+    public void OpenSave()
+    {
+        if (combatStatusChecker != null && combatStatusChecker.IsInCombat())
+        {
+            Debug.Log("Não é possível salvar durante o combate.");
+            return; // Bloqueia o menu de save se estiver em combate
+        }
+
+        Save.SetActive(true);
+        DesableMainButton();
+    }
+
+    public void CloseSave()
+    {
+        Save.SetActive(false);
+        StartMainButton();
+    }
+
+    public void OpenLoad()
+    {
+        Load.SetActive(true);
+        DesableMainButton();
+    }
+
+    public void CloseLoad()
+    {
+        Load.SetActive(false);
+        StartMainButton();
+    }
 
     public void OpenResolution()
     {
@@ -80,7 +124,7 @@ public class Pause : MonoBehaviour
         {
             Sound.SetActive(false);
         }
-        
+
         Resolution.SetActive(true);
         DesableMainButton();
     }
@@ -167,7 +211,7 @@ public class Pause : MonoBehaviour
 
     private bool AnyOptionActive()
     {
-        return Option.activeSelf || Resolution.activeSelf || Sound.activeSelf || ExitGame.activeSelf;
+        return Option.activeSelf || Resolution.activeSelf || Sound.activeSelf || ExitGame.activeSelf || Save.activeSelf || Load.activeSelf;
     }
 
     private void CloseAllOptions()
@@ -176,6 +220,8 @@ public class Pause : MonoBehaviour
         Resolution.SetActive(false);
         Sound.SetActive(false);
         ExitGame.SetActive(false);
+        Save.SetActive(false);
+        Load.SetActive(false);
         StartMainButton(); // Reativa os botões principais
     }
 }

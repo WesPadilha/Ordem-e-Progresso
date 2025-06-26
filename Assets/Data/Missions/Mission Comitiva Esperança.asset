@@ -1,0 +1,79 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e249bb124752fac43a28a64cc9587db7, type: 3}
+  m_Name: "Mission Comitiva Esperan\xE7a"
+  m_EditorClassIdentifier: 
+  missionID: comitiva_esperanca
+  missionName: "[Principal] Comitiva Esperan\xE7a "
+  description: "Acordei depois de uma pancada na cabe\xE7a ao ser assaltado na estrada
+    para o Mato Grosso do Sul, perdi tudo o que tinha, porem uma Caravana parou e
+    me ajudou, hora de retribuir o favor..."
+  rewardExperience: 200
+  rewardMoney: 200
+  rewardItemID: 0
+  isActive: 0
+  isCompleted: 0
+  objectives:
+  - type: 2
+    isCompleted: 0
+    targetID: caixote_um
+    requiredAmount: 1
+    currentAmount: 0
+    description: "Pegue as roupas e arma que est\xE3o sobrando no caixote na frente
+      da carro\xE7a"
+    moreDescription: "Eles me deram roupas e prote\xE7\xE3o... Talvez ainda existam
+      pessoas boas"
+  - type: 3
+    isCompleted: 0
+    targetID: luiz_comitiva_first
+    requiredAmount: 1
+    currentAmount: 0
+    description: "Fale com o sobrinho do Sr. Jo\xE3o Maria - Luiz Moris"
+    moreDescription: 
+  - type: 4
+    isCompleted: 0
+    targetID: estrada_comitiva
+    requiredAmount: 1
+    currentAmount: 0
+    description: "V\xE1 ao caminho a frente da Caravana Esperan\xE7a e localize os
+      caixotes"
+    moreDescription: 
+  - type: 1
+    isCompleted: 0
+    targetID: item_comitiva
+    requiredAmount: 5
+    currentAmount: 0
+    description: Colete as caixas de medicamentos
+    moreDescription: 
+  - type: 3
+    isCompleted: 0
+    targetID: lylian_comitiva
+    requiredAmount: 1
+    currentAmount: 0
+    description: "Entregue os caixotes para M\xE9dica Lylian"
+    moreDescription: 
+  - type: 0
+    isCompleted: 0
+    targetID: pedagio
+    requiredAmount: 4
+    currentAmount: 0
+    description: "Se livre dos \"Cobradores de Pedagio\"\n -(Opicional) Conven\xE7a
+      a irem embora\n -(Opicional) Mate todos\n"
+    moreDescription: 
+  - type: 3
+    isCompleted: 0
+    targetID: joao_comitiva
+    requiredAmount: 1
+    currentAmount: 0
+    description: "Fale com o Sr. Jo\xE3o Maria"
+    moreDescription: 
+  playerInventory: {fileID: 11400000, guid: bfbd47f4718514f488e47dc6353479a0, type: 2}

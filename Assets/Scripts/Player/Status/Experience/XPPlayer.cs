@@ -8,6 +8,12 @@ public class XPPlayer : MonoBehaviour
     [SerializeField] private TMP_Text xpText;
     [SerializeField] public CharacterData characterData;
 
+    private void Start()
+    {
+        // Garante que o UI seja atualizado no início
+        UpdateXPUI();
+    }
+    
     private void OnEnable()
     {
         if (ExperienceManager.Instance != null)

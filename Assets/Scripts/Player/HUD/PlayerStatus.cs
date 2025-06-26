@@ -27,6 +27,7 @@ public class PlayerStatus : MonoBehaviour
         }
 
         DetectNPC(); // Verifica se o mouse está sobre um NPC
+        UpdateMoneyDisplay(); // Atualiza o display de dinheiro
     }
 
     public void UpdateMoneyDisplay()

@@ -41,8 +41,8 @@ public class DamagePopupPro : MonoBehaviour
         popup.cameraTransform = Camera.main.transform;
 
         popupGO.transform.position = position + new Vector3(
-            Random.Range(-0.5f, 0.5f),
-            Random.Range(0.5f, 1.5f),
+            Random.Range(-1.5f, 1.5f),
+            Random.Range(2.5f, 3f),
             0
         );
 

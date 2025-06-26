@@ -12,4 +12,15 @@ public class XPButtonHandler : MonoBehaviour
             xpGranted = true;
         }
     }
+
+    public bool IsXPGranted()
+    {
+        return xpGranted;
+    }
+
+    public void SetXPGranted(bool granted)
+    {
+        xpGranted = granted;
+        // Se quiser, pode atualizar a UI do botão aqui para refletir o estado (ex: desabilitar o botão)
+    }
 }

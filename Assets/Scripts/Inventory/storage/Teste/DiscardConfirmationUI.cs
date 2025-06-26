@@ -40,6 +40,13 @@ public class DiscardConfirmationUI : MonoBehaviour
     public void AskForConfirmation(InventorySlot slot)
     {
         if (slot == null || slot.ItemObject == null) return;
+
+        if (slot.ItemObject.type == ItemType.Quest)
+        {
+            // Não permite descartar itens de missão
+            Debug.Log("Não é possível descartar itens de missão!");
+            return;
+        }
         
         slotToDiscard = slot;
         ItemObject itemObj = slot.ItemObject;

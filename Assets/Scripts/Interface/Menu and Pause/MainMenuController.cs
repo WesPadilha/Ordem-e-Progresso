@@ -7,6 +7,7 @@ public class MainMenuController : MonoBehaviour
 {
     [SerializeField] private string gameNameLevel;
     [SerializeField] private GameObject StartMenu;
+    [SerializeField] private GameObject LoadMenu;
     [SerializeField] private GameObject Option;
     [SerializeField] private GameObject Credit;
     [SerializeField] private GameObject[] MainButton;
@@ -37,6 +38,18 @@ public class MainMenuController : MonoBehaviour
     public void CloseOptions()
     {
         Option.SetActive(false);
+        StartMainButton();
+    }
+
+    public void Load()
+    {
+        LoadMenu.SetActive(true);
+        DesableMainButton();
+    }
+
+    public void CloseLoad()
+    {
+        LoadMenu.SetActive(false);
         StartMainButton();
     }
 

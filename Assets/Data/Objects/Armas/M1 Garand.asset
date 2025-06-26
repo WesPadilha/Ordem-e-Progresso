@@ -12,12 +12,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 15193be7cccc46a4782427269ad8d0fc, type: 3}
   m_Name: M1 Garand
   m_EditorClassIdentifier: 
-  uiDisplay: {fileID: 21300000, guid: a15bc3c4d923d824c96b601fd54c4043, type: 3}
-  characterDisplay: {fileID: 7099356878205097023, guid: acded04cfd3e99345abd88a07ec9974a, type: 3}
+  uiDisplay: {fileID: 21300000, guid: 1d6e48674855e9845a7e06005610a7be, type: 3}
+  characterDisplay: {fileID: 5236653539182430391, guid: 12b07e6be8ca9e14c8719b4fd1b52b17, type: 3}
   stackable: 0
   type: 2
-  description: "M1 Garand\n\nDano: 10 - 15\nCusto de PA: 6\nValor: R$ 170,00\nPeso:
-    8 kg\nMuni\xE7\xE3o: .690 mm"
+  description: "M1 Garand\n\nDano: 10 - 15\nCusto de PA: 6\nMuni\xE7\xE3o: .690 mm\nValor:
+    R$ 170,00\nPeso: 8 kg"
   data:
     Name: M1 Garand
     Id: 4
