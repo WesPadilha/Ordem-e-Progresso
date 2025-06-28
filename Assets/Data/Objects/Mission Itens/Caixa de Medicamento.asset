@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 15193be7cccc46a4782427269ad8d0fc, type: 3}
   m_Name: Caixa de Medicamento
   m_EditorClassIdentifier: 
-  uiDisplay: {fileID: 21300000, guid: ed9e162344e11e846b5b3b616593722a, type: 3}
+  uiDisplay: {fileID: 21300000, guid: e814db902ac522a4ca30629ef237e869, type: 3}
   characterDisplay: {fileID: 0}
   stackable: 1
   type: 5
